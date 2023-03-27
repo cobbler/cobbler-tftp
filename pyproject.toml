@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cobbler-tftp"
+authors = [
+  {name = "Christopher Hock", email = "christopher.hock@suse.com"}
+]
+description = "A tftp server for Cobbler based on fbtftp"
+readme = "README.md"
+requires-python = "3.6"
+license = {text = "MIT-License"}
+classifiers = [
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+]
+# dependencies = [
+#   "fbtftp ~=0.5",
+#   "Jinja2 ~=3.1.2",
+#   "MarkupSafe ~=2.1.2",
+#   "tomli ~=2.0.1",
+#   "typing_extensions ~=4.5.0",
+#   "packaging ~=23.0",
+#   "PyYAML ~=6.0",
+# ]
+dynamic = ["version"]
+
+[tool.isort]
+profile = "black"
