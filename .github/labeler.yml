@@ -1,0 +1,17 @@
+python:
+- src/**/*.py
+
+documentation:
+- docs/*
+- README.md
+- LICENSE
+- CODE_OF_CONDUCT.md
+- CONTRIBUTING
+
+configs:
+- ./**/*.toml
+- ./**/*.yml
+- ./**/*.cfg
+
+container:
+- Dockerfile
