@@ -1,0 +1,26 @@
+name: newsfragment_checker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: pip
+          cache-dependency-path: setup.py
+      - run: pip install -e .[doc]
+
+      - name: get added newsfragments
+        if: ( ! contains(github.event.pull_request.labels.*.name, 'no changelog') )
+        run: towncrier check --compare-with origin/main
+
+      - name: Print result
+        run: echo "Newsfragment added"
