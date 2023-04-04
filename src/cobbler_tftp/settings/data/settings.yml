@@ -1,0 +1,11 @@
+# This file is a reference for cobbler-tftp to validate all given configuration parameters against
+schema: 1.0
+auto_migrate_settings: false
+# Run cobbler-tftp as a daemon in the background
+is_daemon: true
+# Specifications of the cobbler-server
+cobbler:
+  uri: "http://localhost/cobbler_api"
+  username: "cobbler"
+  password: "cobbler"
+  # password_file: "/etc/cobbler-tftp/cobbler_password"

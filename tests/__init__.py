@@ -1,0 +1,3 @@
+"""
+Cobbler-tftp test module
+"""

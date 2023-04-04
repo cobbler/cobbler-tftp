@@ -1,4 +1,1 @@
-"""
-Cobbler-TFTP provides a stateless TFTP-Server to provide an alternative method of operations
-for cobbler-sync.
-"""
+"""Cobbler-TFTP provides a stateless TFTP-Server as an alternative method of operations for ``cobbler sync``."""
