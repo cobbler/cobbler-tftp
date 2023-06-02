@@ -1,0 +1,23 @@
+# Config must be compatible with prospector 1.7.7 due to Python 3.6 support.
+# Pyright will run in a GitHub workflow as it was added in Prospector 1.10
+
+max-line-length: 120
+inherits:
+  - strictness_veryhigh
+
+dodgy:
+  run: true
+
+mccabe:
+  run: true
+
+pydocstyle:
+  run: true
+
+pyflakes:
+  run: true
+  disable:
+    - F841 # Covered by pylint
+
+vulture:
+  run: true
