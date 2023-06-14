@@ -1,16 +1,15 @@
 cobbler\_tftp package
 =====================
 
-Submodules
-----------
+Subpackages
+-----------
 
-cobbler\_tftp.authentication module
------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: cobbler_tftp.authentication
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   cobbler_tftp.exceptions
+   cobbler_tftp.settings
+   cobbler_tftp.types
 
 Module contents
 ---------------

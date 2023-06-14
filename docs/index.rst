@@ -10,6 +10,8 @@ Welcome to Cobbler-TFTP's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Code Documentation<code-autodoc/modules.rst>
+
 
 
 Indices and tables
