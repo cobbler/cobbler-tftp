@@ -47,7 +47,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyright
+          pip install importlib-resources
+          pip install .[lint_requires,tests_require]
       - name: Analysing the code with pyright
         run: |
           pyright $(git ls-files '*.py')

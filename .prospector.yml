@@ -11,8 +11,22 @@ dodgy:
 mccabe:
   run: true
 
+pycodestyle:
+  run: true
+  disable:
+    # https://github.com/psf/black/issues/354#issuecomment-397685631
+    - E203
+    - W503
+
 pydocstyle:
   run: true
+  disable:
+    # https://github.com/PyCQA/pydocstyle/issues/627
+    - D202
+    # https://github.com/PyCQA/pydocstyle/issues/141
+    - D203
+    # https://github.com/PyCQA/pydocstyle/issues/475
+    - D212
 
 pyflakes:
   run: true

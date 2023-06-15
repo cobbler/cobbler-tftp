@@ -1,0 +1,7 @@
+schema: 1.0
+auto_migrate_settings : true
+is_daemon: false
+cobbler:
+  uri: 'http://testmachine.testnetwork.com/api'
+  username: 'cobbler'
+  password_file: 'tests/test_data/password_file'

@@ -1,0 +1,38 @@
+name: Execute tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: pip install .[tests_require]
+
+    - name: Run tests
+      run: pytest -v --cov=src/ tests/
+    - name: Generate coverage report
+      run: coverage xml
+
+    # https://github.com/codacy/codacy-coverage-reporter-action
+    - name: Run codacy-coverage-reporter
+      uses: codacy/codacy-coverage-reporter-action@v1
+      continue-on-error: true
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: coverage.xml
