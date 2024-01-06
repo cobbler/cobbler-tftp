@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import yaml
 
@@ -92,10 +92,14 @@ class SettingsFactory:
         """Initialize a new Settings dicitionary."""
         self._settings_dict: SettingsDict = {}
 
-    def build_settings(self, config_path: Optional[Path], cli_flags) -> Settings:
+    def build_settings(
+        self, config_path: Optional[Path], cli_arguments: List[str]
+    ) -> Settings:
         """
         Build new Settings object using parameters from all sources.
 
+        :param config_path: Path to the configuration file
+        :param cli_arguments: List of all CLI configuration options
         :return: Settings object
         """
 
@@ -106,7 +110,7 @@ class SettingsFactory:
         self.load_env_variables()
 
         # Load CLI options
-        self.load_cli_options(cli_flags)
+        self.load_cli_options(cli_arguments)
 
         if not migrations.validate(self._settings_dict):
             raise ValueError(
