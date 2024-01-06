@@ -92,11 +92,16 @@ class SettingsFactory:
         """Initialize a new Settings dicitionary."""
         self._settings_dict: SettingsDict = {}
 
-    def build_settings(self, config_path: Optional[Path], cli_flags) -> Settings:
+    def build_settings(self, config_path: Optional[Path], cli_arguments) -> Settings:
         """
         Build new Settings object using parameters from all sources.
 
+        :config_path: Path to the configuration file
+        :type config_path: Path
+        :cli_flags: List of all CLI configuration options
+        :type cli_flags: List[str]
         :return: Settings object
+        :rtype: Settings
         """
 
         # Load config file
@@ -106,7 +111,7 @@ class SettingsFactory:
         self.load_env_variables()
 
         # Load CLI options
-        self.load_cli_options(cli_flags)
+        self.load_cli_options(cli_arguments)
 
         if not migrations.validate(self._settings_dict):
             raise ValueError(
