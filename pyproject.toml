@@ -11,8 +11,14 @@ dynamic = [
   "keywords",
   "license",
   "classifiers",
-  "version"
+  "version",
+  "dependencies",
+  "readme",
+  "optional-dependencies"
 ]
+
+[project.scripts]
+cobbler-tftp = "cobbler_tftp.cli:cli"
 
 [tool.isort]
 profile = "black"
@@ -58,4 +64,3 @@ showcontent = true
 directory = "fixed"
 name = "Fixed"
 showcontent = true
-
