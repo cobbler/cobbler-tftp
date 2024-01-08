@@ -7,7 +7,9 @@ import yaml
 
 from cobbler_tftp.settings import SettingsFactory
 
-with open("src/cobbler_tftp/settings/data/settings.yml", "r", encoding="utf-8") as stream:
+with open(
+    "src/cobbler_tftp/settings/data/settings.yml", "r", encoding="utf-8"
+) as stream:
     try:
         SETTINGS = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
@@ -24,7 +26,9 @@ def cli(ctx):
     Licensed under the terms of the GPLv2.0 license.
     """
     if ctx.invoked_subcommand is None:
-        click.echo("No commands given, try 'cobbler-tftp -h' or 'cobbler-tftp --help' to view usage.")
+        click.echo(
+            "No commands given, try 'cobbler-tftp -h' or 'cobbler-tftp --help' to view usage."
+        )
 
         # Possible default behavior can be invoked here
 
@@ -34,13 +38,13 @@ def cli(ctx):
     "--no-daemon",
     "-dd",
     is_flag=True,
-    default=SETTINGS["is_daemon"], #type: ignore
+    default=SETTINGS["is_daemon"],  # type: ignore
     help="Stop cobbler-tftp from running as daemon.",
 )
 @click.option(
     "--enable-automigration",
     is_flag=True,
-    default=SETTINGS["auto_migrate_settings"], #type: ignore
+    default=SETTINGS["auto_migrate_settings"],  # type: ignore
     help="Enable auto migration of settings.",
 )
 @click.option(
