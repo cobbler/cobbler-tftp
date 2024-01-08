@@ -23,6 +23,8 @@ cobbler-tftp = "cobbler_tftp.cli:cli"
 [tool.isort]
 profile = "black"
 
+[tool.setuptools_scm]
+
 [tool.towncrier]
 directory = "changelog.d"
 filename = "changelog/v{version}.md"

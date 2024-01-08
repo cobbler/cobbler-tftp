@@ -5,7 +5,17 @@ Cobbler-tftp will be managable as a command-line service.
 import click
 import yaml
 
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:  # use backport for Python versions older than 3.8
+    import importlib_metadata
+
 from cobbler_tftp.settings import SettingsFactory
+
+try:
+    __version__ = importlib_metadata.version("cobbler_tftp")
+except importlib_metadata.PackageNotFoundError:
+    __version__ = "unknown (not installed)"
 
 with open(
     "src/cobbler_tftp/settings/data/settings.yml", "r", encoding="utf-8"
@@ -84,7 +94,7 @@ def version():
     """
     Check cobbler-tftp version. If there are any cobbler servers connected their versions will be printed as well.
     """
-    pass
+    click.echo(f"Cobbler-tftp {__version__}")
 
 
 @cli.command()
