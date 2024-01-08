@@ -27,7 +27,7 @@ def test_build_settings_with_default_config_file(
              config file
     """
     # Call the build_settings method with None as the config_path argument
-    settings = settings_factory.build_settings(None, None)
+    settings = settings_factory.build_settings(None)
 
     # Assert that the expected values are set in the Settings object
     assert isinstance(settings, Settings)
@@ -42,7 +42,7 @@ def test_build_settings_with_valid_config_file(
     settings_factory: SettingsFactory, mocker
 ):
     valid_file_path = Path("tests/test_data/valid_config.yml")
-    settings = settings_factory.build_settings(valid_file_path, None)
+    settings = settings_factory.build_settings(valid_file_path)
 
     assert isinstance(settings, Settings)
     assert settings.auto_migrate_settings is True
@@ -60,7 +60,7 @@ def test_build_settings_with_invalid_config_file(
     path = Path("tests/test_data/invalid_config.yml")
 
     with pytest.raises(ValueError) as exc:
-        settings_factory.build_settings(path, None)
+        settings_factory.build_settings(path)
 
     assert """Validation Error: Configuration Parameters could not be validated!\n
                 This may be due to an invalid configuration file or path.""" in str(
@@ -83,7 +83,7 @@ def test_build_settings_with_missing_config_file(
     expected_message = f"Warning: No configuration file found at {path}! Using default configuration file...\n"
 
     # Act
-    settings = settings_factory.build_settings(path, None)
+    settings = settings_factory.build_settings(path)
 
     # Assert
     captured_message = capsys.readouterr()
