@@ -169,7 +169,7 @@ class SettingsFactory:
                 config_file_content = (
                     files("cobbler_tftp.settings.data")
                     .joinpath("settings.yml")
-                    .read_text(encoding="UTF-8")
+                    .read_text(encoding="UTF-8")  # type: ignore
                 )
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
@@ -177,7 +177,7 @@ class SettingsFactory:
         elif config_path and Path.exists(config_path):
             try:
                 config_file_content = (
-                    files(config_import_path).joinpath(config_file).read_text("utf-8")
+                    files(config_import_path).joinpath(config_file).read_text("utf-8")  # type: ignore
                 )
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
