@@ -102,7 +102,8 @@ def print_default_config():
     """
     Print the default application parameters.
     """
-    pass
+    settings_factory: SettingsFactory = SettingsFactory()
+    click.echo(settings_factory.build_settings(None, []))
 
 
 @cli.command()
