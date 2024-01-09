@@ -17,6 +17,20 @@ def settings_factory():
     return SettingsFactory()
 
 
+def assert_default_settings(settings):
+    assert settings.auto_migrate_settings is False
+    assert settings.is_daemon is True
+    assert str(settings.pid_file_path) == "/run/cobbler-tftp.pid"
+    assert settings.uri == "http://localhost/cobbler_api"
+    assert settings.user == "cobbler"
+    assert settings.password == "cobbler"
+    assert settings.tftp_addr == "127.0.0.1"
+    assert settings.tftp_port == 69
+    assert settings.tftp_retries == 5
+    assert settings.tftp_timeout == 2
+    assert str(settings.logging_conf) == "/etc/cobbler-tftp/logging.conf"
+
+
 def test_build_settings_with_default_config_file(
     settings_factory: SettingsFactory, mocker
 ):
@@ -31,11 +45,7 @@ def test_build_settings_with_default_config_file(
 
     # Assert that the expected values are set in the Settings object
     assert isinstance(settings, Settings)
-    assert settings.auto_migrate_settings is False
-    assert settings.is_daemon is True
-    assert settings.uri == "http://localhost/cobbler_api"
-    assert settings.user == "cobbler"
-    assert settings.password == "cobbler"
+    assert_default_settings(settings)
 
 
 def test_build_settings_with_valid_config_file(
@@ -50,6 +60,10 @@ def test_build_settings_with_valid_config_file(
     assert settings.uri == "http://testmachine.testnetwork.com/api"
     assert settings.user == "cobbler"
     assert settings.password == "password"
+    assert settings.tftp_addr == "0.0.0.0"  # nosec
+    assert settings.tftp_port == 1969
+    assert settings.tftp_retries == 10
+    assert settings.tftp_timeout == 3
 
 
 def test_build_settings_with_invalid_config_file(
@@ -89,8 +103,4 @@ def test_build_settings_with_missing_config_file(
     captured_message = capsys.readouterr()
     assert captured_message.out == expected_message
     assert isinstance(settings, Settings)
-    assert settings.auto_migrate_settings is False
-    assert settings.is_daemon is True
-    assert settings.uri == "http://localhost/cobbler_api"
-    assert settings.user == "cobbler"
-    assert settings.password == "cobbler"
+    assert_default_settings(settings)

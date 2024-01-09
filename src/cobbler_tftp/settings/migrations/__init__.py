@@ -131,9 +131,9 @@ def __validate_module(name: ModuleType) -> bool:
     """
     # noqa for these lines because we can't use the custom types to check this.
     module_methods = {
-        "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[str,pathlib.Path]]]])->bool",  # noqa
-        "normalize": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[str,pathlib.Path]]]]",  # noqa
-        "migrate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[str,pathlib.Path]]]]",  # noqa
+        "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->bool",  # noqa
+        "normalize": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
+        "migrate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
     }
 
     for key, value in module_methods.items():

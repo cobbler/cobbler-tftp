@@ -3,9 +3,17 @@ schema: 1.0
 auto_migrate_settings: false
 # Run cobbler-tftp as a daemon in the background
 is_daemon: true
+pid_file_path: "/run/cobbler-tftp.pid"
 # Specifications of the cobbler-server
 cobbler:
   uri: "http://localhost/cobbler_api"
   username: "cobbler"
   password: "cobbler"
   # password_file: "/etc/cobbler-tftp/cobbler_password"
+# TFTP server configuration
+tftp:
+  address: "127.0.0.1"
+  port: 69
+  retries: 5
+  timeout: 2
+logging_conf: "/etc/cobbler-tftp/logging.conf"

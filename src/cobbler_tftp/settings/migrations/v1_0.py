@@ -11,11 +11,19 @@ settings_schema: Schema = Schema(
         Optional("schema"): float,
         Optional("auto_migrate_settings"): bool,
         Optional("is_daemon"): bool,
+        Optional("pid_file_path"): str,
         Optional("cobbler"): {
             Optional("uri"): str,
             Optional("username"): str,
             Optional(Or("password", "password_file", only_one=True)): Or(str, Path),
         },
+        Optional("tftp"): {
+            Optional("address"): str,
+            Optional("port"): int,
+            Optional("retries"): int,
+            Optional("timeout"): int,
+        },
+        Optional("logging_conf"): str,
     }
 )
 

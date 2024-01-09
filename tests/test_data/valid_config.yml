@@ -5,3 +5,8 @@ cobbler:
   uri: 'http://testmachine.testnetwork.com/api'
   username: 'cobbler'
   password_file: 'tests/test_data/password_file'
+tftp:
+  address: '0.0.0.0'
+  port: 1969
+  retries: 10
+  timeout: 3
