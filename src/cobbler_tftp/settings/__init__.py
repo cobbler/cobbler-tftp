@@ -93,7 +93,11 @@ class SettingsFactory:
         self._settings_dict: SettingsDict = {}
 
     def build_settings(
-        self, config_path: Optional[Path], cli_arguments: List[str]
+        self,
+        config_path: Optional[Path],
+        daemon: Optional[bool] = None,
+        enable_automigration: Optional[bool] = None,
+        cli_arguments: List[str] = [],
     ) -> Settings:
         """
         Build new Settings object using parameters from all sources.
@@ -110,7 +114,7 @@ class SettingsFactory:
         self.load_env_variables()
 
         # Load CLI options
-        self.load_cli_options(cli_arguments)
+        self.load_cli_options(daemon, enable_automigration, cli_arguments)
 
         if not migrations.validate(self._settings_dict):
             raise ValueError(
@@ -165,7 +169,7 @@ class SettingsFactory:
                 config_file_content = (
                     files("cobbler_tftp.settings.data")
                     .joinpath("settings.yml")
-                    .read_text(encoding="UTF-8")
+                    .read_text(encoding="UTF-8")  # type: ignore
                 )
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
@@ -173,7 +177,7 @@ class SettingsFactory:
         elif config_path and Path.exists(config_path):
             try:
                 config_file_content = (
-                    files(config_import_path).joinpath(config_file).read_text("utf-8")
+                    files(config_import_path).joinpath(config_file).read_text("utf-8")  # type: ignore
                 )
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
@@ -219,7 +223,7 @@ class SettingsFactory:
         self,
         daemon: Optional[bool] = None,
         enable_automigration: Optional[bool] = None,
-        settings: Optional[Dict[str, Union[str, Path]]] = None,
+        settings: List[str] = [],
     ) -> SettingsDict:
         """
         Get parameters and flags from CLI.
@@ -234,16 +238,11 @@ class SettingsFactory:
         :return _settings_dict: Settings dictionary.
         """
 
-        if not daemon and not enable_automigration and not settings:
-            return self._settings_dict
-
-        if daemon:
+        if daemon is not None:
             self._settings_dict["is_daemon"] = daemon
-        if enable_automigration:
+        if enable_automigration is not None:
             self._settings_dict["auto_migrate_settings"] = enable_automigration
 
-        if settings is None:
-            raise ValueError
         for setting in settings:
             option_list = setting.split("=", 1)
 
