@@ -256,7 +256,8 @@ class SettingsFactory:
         :param daemon: If the application should be run in the background as a daemon or not.
         :param enable_automigration: Whether to enable the automigration or not.
         :param settings: List of custom settings which can be entered manually.
-                         Each entry has the format: ``<PARENT_YAML_KEY>.<CHILD_YAML_KEY>.<...>.<KEY_NAME>=<VALUE>``
+                         Each entry has the format: ``<PARENT_YAML_KEY>.<CHILD_YAML_KEY>.<...>.<KEY_NAME>=<VALUE>``,
+                         where VALUE is parsed as a YAML value.
         :return _settings_dict: Settings dictionary.
         """
 
@@ -271,12 +272,13 @@ class SettingsFactory:
             if "." not in option_list[0]:
                 self._settings_dict.update({option_list[0]: option_list[1]})
             else:
-                parent = option_list[0].split(".")
+                key_path = option_list[0].split(".")
+                key_path.reverse()
 
-                setting_to_update = {parent[-1]: option_list[1]}
+                setting_to_update = yaml.safe_load(option_list[1])
 
-                for key in range(len(parent), 0, -1):
-                    setting_to_update = {parent[key]: setting_to_update}
+                for key in key_path:
+                    setting_to_update = {key: setting_to_update}
 
                 self._settings_dict.update(setting_to_update)  # type: ignore
 

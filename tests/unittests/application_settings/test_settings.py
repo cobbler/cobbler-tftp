@@ -118,3 +118,21 @@ def test_build_settings_with_missing_config_file(
     assert captured_message.out == expected_message
     assert isinstance(settings, Settings)
     assert_default_settings(settings)
+
+
+def test_build_settings_with_cli_args(settings_factory: SettingsFactory):
+    cli_settings = ["tftp.address=1.2.3.4"]
+
+    settings = settings_factory.build_settings(None, cli_arguments=cli_settings)
+
+    assert isinstance(settings, Settings)
+    assert settings.tftp_addr == "1.2.3.4"
+
+
+def test_build_settings_with_integer_cli_args(settings_factory: SettingsFactory):
+    cli_settings = ["tftp.port=1969"]
+
+    settings = settings_factory.build_settings(None, cli_arguments=cli_settings)
+
+    assert isinstance(settings, Settings)
+    assert settings.tftp_port == 1969
