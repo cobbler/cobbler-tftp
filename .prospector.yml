@@ -17,6 +17,8 @@ pycodestyle:
     # https://github.com/psf/black/issues/354#issuecomment-397685631
     - E203
     - W503
+    # Disabled due to the overlap with pylint 
+    - E722
 
 pydocstyle:
   run: true

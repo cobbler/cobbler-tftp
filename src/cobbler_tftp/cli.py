@@ -2,17 +2,21 @@
 Cobbler-tftp will be managable as a command-line service.
 """
 
+import os
 from pathlib import Path
+from signal import SIGTERM
 from typing import List, Optional
 
 import click
 import yaml
+from daemon import DaemonContext
 
 try:
     import importlib.metadata as importlib_metadata
 except ImportError:  # use backport for Python versions older than 3.8
     import importlib_metadata
 
+from cobbler_tftp.server import run_server
 from cobbler_tftp.settings import SettingsFactory
 
 try:
@@ -74,20 +78,29 @@ def start(
     """
     click.echo(cli.__doc__)
     click.echo("Initializing Cobbler-tftp server...")
-    settings_factory: SettingsFactory = SettingsFactory()
-    # settings_file = SettingsFactory.load_config_file(settings_factory, config)
-    # environment_variables = SettingsFactory.load_env_variables(settings_factory)
-    # cli_arguments = SettingsFactory.load_cli_options(
-    #     settings_factory, daemon, enable_automigration, settings
-    # )
     if config is None:
         config_path = None
     else:
         config_path = Path(config)
-    application_settings = SettingsFactory.build_settings(
-        settings_factory, config_path, daemon, enable_automigration, settings
+    application_settings = SettingsFactory().build_settings(
+        config_path, daemon, enable_automigration, settings
     )
-    print(application_settings)
+    if application_settings.is_daemon:
+        click.echo("Starting daemon...")
+        with DaemonContext():
+            # All previously open file descriptors are invalid now.
+            # Files and connections needed for the daemon should be opened
+            # in run_server or listed in the files_preserve option
+            # of DaemonContext.
+
+            application_settings.pid_file_path.write_text(str(os.getpid()))
+            try:
+                run_server(application_settings)
+            finally:
+                application_settings.pid_file_path.unlink()
+    else:
+        click.echo("Daemon mode disabled, running in foreground.")
+        run_server(application_settings)
 
 
 @cli.command()
@@ -103,16 +116,37 @@ def print_default_config():
     """
     Print the default application parameters.
     """
-    settings_factory: SettingsFactory = SettingsFactory()
-    click.echo(settings_factory.build_settings(None))
+    click.echo(SettingsFactory().build_settings(None))
 
 
 @cli.command()
-def stop():
+@click.option(
+    "--config", "-c", type=click.Path(), help="Set location of configuration file."
+)
+@click.option("--pid-file", "-p", type=click.Path(), help="Set location of PID file.")
+def stop(config: Optional[str], pid_file: Optional[str]):
     """
     Stop the cobbler-tftp server daemon if it is running
     """
-    pass
+    if pid_file is None:
+        if config is None:
+            config_path = None
+        else:
+            config_path = Path(config)
+        application_settings = SettingsFactory().build_settings(config_path)
+        pid_file_path = application_settings.pid_file_path
+    else:
+        pid_file_path = Path(pid_file)
+    try:
+        pid = int(pid_file_path.read_text(encoding="UTF-8"))
+    except OSError:
+        click.echo("Unable to read PID file. The daemon is probably not running.")
+        return
+    try:
+        os.kill(pid, SIGTERM)
+    except ProcessLookupError:
+        click.echo("Stale PID file. The daemon is no longer running.")
+    pid_file_path.unlink()
 
 
 cli.add_command(start)
