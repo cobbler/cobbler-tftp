@@ -220,21 +220,19 @@ class SettingsFactory:
             return self._settings_dict
 
         for variable in cobbler_keys:
-            key_path = variable.split("__")
-            key_to_update = key_path[-1]
+            key_path = variable.split("__")[1:]
+            key_path.reverse()
+            key_to_update = key_path[0]
 
-            if len(key_path) == 2:
-                try:
-                    self._settings_dict.update(
-                        {key_to_update.lower(): str(os.environ[variable])}
-                    )
-                except KeyError as exc:
-                    print(exc)
+            if len(key_path) == 1:
+                self._settings_dict.update(
+                    {key_to_update.lower(): yaml.safe_load(os.environ[variable])}
+                )
             else:
-                setting_to_update = {key_to_update.lower(): str(os.environ[variable])}
+                setting_to_update = yaml.safe_load(os.environ[variable])
 
-                for pos in range(len(key_path) - 2, 1, -1):
-                    setting_to_update = {key_path[pos]: setting_to_update}
+                for key in key_path:
+                    setting_to_update = {key.lower(): setting_to_update}
 
                 self._settings_dict.update(setting_to_update)  # type: ignore
 

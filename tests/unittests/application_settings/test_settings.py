@@ -2,7 +2,9 @@
 Tests for the application settings module.
 """
 
+import os
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -133,6 +135,22 @@ def test_build_settings_with_integer_cli_args(settings_factory: SettingsFactory)
     cli_settings = ["tftp.port=1969"]
 
     settings = settings_factory.build_settings(None, cli_arguments=cli_settings)
+
+    assert isinstance(settings, Settings)
+    assert settings.tftp_port == 1969
+
+
+@mock.patch.dict(os.environ, {"COBBLER_TFTP__TFTP__ADDRESS": "1.2.3.4"})
+def test_build_settings_with_env_vars(settings_factory: SettingsFactory):
+    settings = settings_factory.build_settings(None)
+
+    assert isinstance(settings, Settings)
+    assert settings.tftp_addr == "1.2.3.4"
+
+
+@mock.patch.dict(os.environ, {"COBBLER_TFTP__TFTP__PORT": "1969"})
+def test_build_settings_with_integer_env_vars(settings_factory: SettingsFactory):
+    settings = settings_factory.build_settings(None)
 
     assert isinstance(settings, Settings)
     assert settings.tftp_port == 1969
