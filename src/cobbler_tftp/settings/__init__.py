@@ -183,12 +183,8 @@ class SettingsFactory:
         :return _settings_dict: Dictionary containing all settings from the settings.yml file
         """
 
-        config_file = str(config_path).rsplit("/", maxsplit=1)[-1]
-        config_pure_path = Path(str(config_path).replace(config_file, ""))
-        config_import_path = str(config_pure_path).replace("/", ".", -1)
-
-        if not config_path or config_path == "" or not Path.exists(config_path):
-            if config_path and not Path.exists(config_path):  # type: ignore
+        if config_path is None or not Path.exists(config_path):
+            if config_path is not None:
                 # Prompt the user that no configuration file could be found and the default will be used
                 print(
                     f"Warning: No configuration file found at {config_path}! Using default configuration file..."
@@ -202,11 +198,9 @@ class SettingsFactory:
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
                 print(f"Error: No valid configuration file found at {config_path}!")
-        elif config_path and Path.exists(config_path):
+        elif config_path is not None:
             try:
-                config_file_content = (
-                    files(config_import_path).joinpath(config_file).read_text("utf-8")  # type: ignore
-                )
+                config_file_content = config_path.read_text(encoding="UTF-8")
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
                 print(f"Error: No valid configuration file found at {config_path}!")

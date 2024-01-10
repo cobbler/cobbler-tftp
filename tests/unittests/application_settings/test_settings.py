@@ -31,6 +31,18 @@ def assert_default_settings(settings):
     assert str(settings.logging_conf) == "/etc/cobbler-tftp/logging.conf"
 
 
+def assert_customized_settings(settings):
+    assert settings.auto_migrate_settings is True
+    assert settings.is_daemon is False
+    assert settings.uri == "http://testmachine.testnetwork.com/api"
+    assert settings.user == "cobbler"
+    assert settings.password == "password"
+    assert settings.tftp_addr == "0.0.0.0"  # nosec
+    assert settings.tftp_port == 1969
+    assert settings.tftp_retries == 10
+    assert settings.tftp_timeout == 3
+
+
 def test_build_settings_with_default_config_file(
     settings_factory: SettingsFactory, mocker
 ):
@@ -55,15 +67,17 @@ def test_build_settings_with_valid_config_file(
     settings = settings_factory.build_settings(valid_file_path)
 
     assert isinstance(settings, Settings)
-    assert settings.auto_migrate_settings is True
-    assert settings.is_daemon is False
-    assert settings.uri == "http://testmachine.testnetwork.com/api"
-    assert settings.user == "cobbler"
-    assert settings.password == "password"
-    assert settings.tftp_addr == "0.0.0.0"  # nosec
-    assert settings.tftp_port == 1969
-    assert settings.tftp_retries == 10
-    assert settings.tftp_timeout == 3
+    assert_customized_settings(settings)
+
+
+def test_build_settings_with_absolute_config_path(
+    settings_factory: SettingsFactory, mocker
+):
+    absolute_path = Path("tests/test_data/valid_config.yml").absolute()
+    settings = settings_factory.build_settings(absolute_path)
+
+    assert isinstance(settings, Settings)
+    assert_customized_settings(settings)
 
 
 def test_build_settings_with_invalid_config_file(
