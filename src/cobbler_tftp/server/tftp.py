@@ -3,24 +3,76 @@ This module contains the main TFTP server class.
 """
 
 import logging
+import os
+import time
+import xmlrpc.client
 
 from fbtftp import BaseHandler, BaseServer, ResponseData
 
 
 class CobblerResponseData(ResponseData):
-    """File-like object representing the response from the TFTP server."""
+    """
+    File-like object representing the response from the TFTP server.
+    Data is fetched from the API in chunks. These chunks may be larger
+    than the TFTP request chunks, so the returned chunks are cached.
+    """
 
-    def __init__(self):
-        pass
+    def __init__(self, api, token, path, prefetch_size):
+        self._api = api
+        self._token = token
+        self._path = path
+        self._size = None
+        self._chunk = None
+        self._chunk_offset = 0
+        self._file_offset = 0
+        self._prefetch_size = prefetch_size
+
+    def load(self):
+        binary, self._size = self._api.get_tftp_file(
+            self._path, self._file_offset, self._prefetch_size, self._token
+        )
+        self._chunk = binary.data
 
     def read(self, n):
-        return b""
+        if self._chunk is None:
+            raise RuntimeError("load() not called")
+        if n > self._prefetch_size:
+            raise ValueError("Chunk too large")
+        end = self._chunk_offset + n
+        if end <= self._prefetch_size:
+            data = self._chunk[self._chunk_offset : end]
+            self._chunk_offset = end
+            return data
+        self._file_offset += self._chunk_offset
+        self.load()
+        data = self._chunk[:n]
+        self._chunk_offset = len(data)
+        return data
 
     def size(self):
-        return 0
+        if self._size is None:
+            raise RuntimeError("load() not called")
+        return self._size
 
     def close(self):
         pass
+
+
+class FileResponseData(ResponseData):
+    """Object representing a static file response from the TFTP server."""
+
+    def __init__(self, path):
+        self._io = open(path, "rb")
+        self._size = path.stat().st_size
+
+    def read(self, n):
+        return self._io.read(n)
+
+    def size(self):
+        return self._size
+
+    def close(self):
+        self._io.close()
 
 
 def handler_stats_cb(stats):
@@ -32,7 +84,7 @@ def handler_stats_cb(stats):
         stats.peer,
     )
     logging.info(
-        "Error: %r, sent %d bytes with %d retransmits",
+        "%r, sent %d bytes with %d retransmits",
         stats.error,
         stats.bytes_sent,
         stats.retransmits,
@@ -50,7 +102,7 @@ class CobblerRequestHandler(BaseHandler):
     Handles TFTP requests using the Cobbler API.
     """
 
-    def __init__(self, server_addr, peer, path, options):
+    def __init__(self, server_addr, peer, path, options, api, token, settings):
         """
         Initialize a handler for a specific request.
 
@@ -58,12 +110,28 @@ class CobblerRequestHandler(BaseHandler):
         :param peer: Tuple containing the client address and port.
         :param path: Request file path.
         :param options: Options requested by the client.
+        :param api: The Cobbler API object.
+        :param token: Login token for accessing the Cobbler API.
+        :param settings: The cobbler-tftp application settings.
         """
-        # Future arguments can be handled here
+        self._api = api
+        self._token = token
+        self._settings = settings
         super().__init__(server_addr, peer, path, options, handler_stats_cb)
 
     def get_response_data(self):
-        return CobblerResponseData()
+        resp = CobblerResponseData(
+            self._api, self._token, self._path, self._settings.prefetch_size
+        )
+        try:
+            resp.load()
+            return resp
+        except xmlrpc.client.Error as err:
+            logging.warning("Could not fetch %s from server: %r", self._path, err)
+            if self._settings.static_fallback_dir is not None:
+                path = os.path.normpath(os.path.join("/", self._path)).strip("/")
+                return FileResponseData(self._settings.static_fallback_dir / path)
+            raise err
 
 
 class TFTPServer(BaseServer):
@@ -71,18 +139,39 @@ class TFTPServer(BaseServer):
     Implements a TFTP server for the Cobbler API using the CobblerRequestHandler.
     """
 
-    def __init__(self, address, port, retries, timeout):
+    def __init__(self, settings):
         """
         Initialize the TFTP server.
 
-        :param address: IP address to listen on.
-        :param port: UDP Port to listen on.
-        :param retries: Maximum number of retries when sending a packet fails.
-        :param timeout: Timeout for sending packets.
+        :param settings: The cobbler-tftp application settings.
         """
-        # Future arguments can be handled here
-        self.handler_stats_cb = handler_stats_cb
-        super().__init__(address, port, retries, timeout, server_stats_cb)
+        self._token = None
+        self._token_renew_time = 0.0
+        self._settings = settings
+        super().__init__(
+            settings.tftp_addr,
+            settings.tftp_port,
+            settings.tftp_retries,
+            settings.tftp_timeout,
+            server_stats_cb,
+        )
+
+    def _renew_token(self, api):
+        start_time = time.monotonic()
+        if start_time >= self._token_renew_time:
+            self._token = api.login(self._settings.user, self._settings.password)
+            self._token_renew_time = start_time + self._settings.token_refresh_interval
+
+    def cleanup(self):
+        if self._token is not None:
+            if time.monotonic() < self._token_renew_time:
+                xmlrpc.client.Server(self._settings.uri).logout(self._token)
+        # fbtftp doesn't clean up after exceptions, so we do it here ourselves
+        self._metrics_timer.cancel()  # type: ignore
 
     def get_handler(self, server_addr, peer, path, options):
-        return CobblerRequestHandler(server_addr, peer, path, options)
+        api = xmlrpc.client.Server(self._settings.uri)
+        self._renew_token(api)
+        return CobblerRequestHandler(
+            server_addr, peer, path, options, api, self._token, self._settings
+        )

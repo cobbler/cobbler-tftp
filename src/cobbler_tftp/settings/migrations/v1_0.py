@@ -16,12 +16,15 @@ settings_schema: Schema = Schema(
             Optional("uri"): str,
             Optional("username"): str,
             Optional(Or("password", "password_file", only_one=True)): Or(str, Path),
+            Optional("token_refresh_interval"): int,
         },
+        Optional("prefetch_size"): int,
         Optional("tftp"): {
             Optional("address"): str,
             Optional("port"): int,
             Optional("retries"): int,
             Optional("timeout"): int,
+            Optional("static_fallback_dir"): str,
         },
         Optional("logging_conf"): str,
     }

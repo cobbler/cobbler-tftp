@@ -10,10 +10,18 @@ cobbler:
   username: "cobbler"
   password: "cobbler"
   # password_file: "/etc/cobbler-tftp/cobbler_password"
+  # Time before requesting a new token, in seconds. To avoid problems, set
+  # this to a lower value than the token expiration time.
+  token_refresh_interval: 1800
+# Chunk size used for fetching files from Cobbler.
+# Lower values result in slower transfers, higher values increase memory
+# consumption. Extremely large values may cause TFTP timeouts.
+prefetch_size: 4096
 # TFTP server configuration
 tftp:
   address: "127.0.0.1"
   port: 69
   retries: 5
   timeout: 2
+  static_fallback_dir: "/srv/tftpboot"
 logging_conf: "/etc/cobbler-tftp/logging.conf"

@@ -23,11 +23,7 @@ def run_server(application_settings: Settings):
     logging.config.fileConfig(str(logging_conf))
     logging.debug("Server starting...")
     try:
-        address = application_settings.tftp_addr
-        port = application_settings.tftp_port
-        retries = application_settings.tftp_retries
-        timeout = application_settings.tftp_timeout
-        server = TFTPServer(address, port, retries, timeout)
+        server = TFTPServer(application_settings)
     except:  # pylint: disable=bare-except
         logging.exception("Fatal exception while setting up server")
         return
@@ -35,5 +31,4 @@ def run_server(application_settings: Settings):
         server.run()
     except:  # pylint: disable=bare-except
         logging.exception("Fatal exception in server")
-    # fbtftp doesn't clean up after exceptions, so we do it here ourselves
-    server._metrics_timer.cancel()  # type: ignore
+    server.cleanup()
