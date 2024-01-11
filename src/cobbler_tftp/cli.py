@@ -65,7 +65,7 @@ def cli(ctx):
     multiple=True,
     help="""Set custom settings in format:\n
     <PARENT_YAML_KEY>.<CHILD_YAML_KEY>.<...>.<KEY_NAME>=<VALUE>.\n
-    Your settings must use single quotes. If a single quote appears within a value it must be escaped.""",
+    The value is parsed as YAML. Quotes around the value are recommended for strings.""",
 )
 def start(
     daemon: Optional[bool],

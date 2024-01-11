@@ -183,12 +183,8 @@ class SettingsFactory:
         :return _settings_dict: Dictionary containing all settings from the settings.yml file
         """
 
-        config_file = str(config_path).rsplit("/", maxsplit=1)[-1]
-        config_pure_path = Path(str(config_path).replace(config_file, ""))
-        config_import_path = str(config_pure_path).replace("/", ".", -1)
-
-        if not config_path or config_path == "" or not Path.exists(config_path):
-            if config_path and not Path.exists(config_path):  # type: ignore
+        if config_path is None or not Path.exists(config_path):
+            if config_path is not None:
                 # Prompt the user that no configuration file could be found and the default will be used
                 print(
                     f"Warning: No configuration file found at {config_path}! Using default configuration file..."
@@ -202,11 +198,9 @@ class SettingsFactory:
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
                 print(f"Error: No valid configuration file found at {config_path}!")
-        elif config_path and Path.exists(config_path):
+        elif config_path is not None:
             try:
-                config_file_content = (
-                    files(config_import_path).joinpath(config_file).read_text("utf-8")  # type: ignore
-                )
+                config_file_content = config_path.read_text(encoding="UTF-8")
                 self._settings_dict = yaml.safe_load(config_file_content)
             except yaml.YAMLError:
                 print(f"Error: No valid configuration file found at {config_path}!")
@@ -226,21 +220,19 @@ class SettingsFactory:
             return self._settings_dict
 
         for variable in cobbler_keys:
-            key_path = variable.split("__")
-            key_to_update = key_path[-1]
+            key_path = variable.split("__")[1:]
+            key_path.reverse()
+            key_to_update = key_path[0]
 
-            if len(key_path) == 2:
-                try:
-                    self._settings_dict.update(
-                        {key_to_update.lower(): str(os.environ[variable])}
-                    )
-                except KeyError as exc:
-                    print(exc)
+            if len(key_path) == 1:
+                self._settings_dict.update(
+                    {key_to_update.lower(): yaml.safe_load(os.environ[variable])}
+                )
             else:
-                setting_to_update = {key_to_update.lower(): str(os.environ[variable])}
+                setting_to_update = yaml.safe_load(os.environ[variable])
 
-                for pos in range(len(key_path) - 2, 1, -1):
-                    setting_to_update = {key_path[pos]: setting_to_update}
+                for key in key_path:
+                    setting_to_update = {key.lower(): setting_to_update}
 
                 self._settings_dict.update(setting_to_update)  # type: ignore
 
@@ -262,7 +254,8 @@ class SettingsFactory:
         :param daemon: If the application should be run in the background as a daemon or not.
         :param enable_automigration: Whether to enable the automigration or not.
         :param settings: List of custom settings which can be entered manually.
-                         Each entry has the format: ``<PARENT_YAML_KEY>.<CHILD_YAML_KEY>.<...>.<KEY_NAME>=<VALUE>``
+                         Each entry has the format: ``<PARENT_YAML_KEY>.<CHILD_YAML_KEY>.<...>.<KEY_NAME>=<VALUE>``,
+                         where VALUE is parsed as a YAML value.
         :return _settings_dict: Settings dictionary.
         """
 
@@ -277,12 +270,13 @@ class SettingsFactory:
             if "." not in option_list[0]:
                 self._settings_dict.update({option_list[0]: option_list[1]})
             else:
-                parent = option_list[0].split(".")
+                key_path = option_list[0].split(".")
+                key_path.reverse()
 
-                setting_to_update = {parent[-1]: option_list[1]}
+                setting_to_update = yaml.safe_load(option_list[1])
 
-                for key in range(len(parent), 0, -1):
-                    setting_to_update = {parent[key]: setting_to_update}
+                for key in key_path:
+                    setting_to_update = {key: setting_to_update}
 
                 self._settings_dict.update(setting_to_update)  # type: ignore
 
