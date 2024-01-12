@@ -4,7 +4,7 @@ Cobbler-tftp will be managable as a command-line service.
 
 import os
 from pathlib import Path
-from signal import SIGTERM
+from signal import SIGCHLD, SIGTERM
 from typing import List, Optional
 
 import click
@@ -87,7 +87,7 @@ def start(
     )
     if application_settings.is_daemon:
         click.echo("Starting daemon...")
-        with DaemonContext():
+        with DaemonContext(signal_map={SIGCHLD: None}):
             # All previously open file descriptors are invalid now.
             # Files and connections needed for the daemon should be opened
             # in run_server or listed in the files_preserve option
