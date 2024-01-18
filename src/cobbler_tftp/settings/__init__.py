@@ -31,11 +31,14 @@ class Settings:
         username: str,
         password: Optional[str],
         password_file: Optional[Path],
+        token_refresh_interval: int,
+        prefetch_size: int,
         tftp_addr: str,
         tftp_port: int,
         tftp_retries: int,
         tftp_timeout: int,
         logging_conf: Optional[Path],
+        static_fallback_dir: Optional[Path],
     ) -> None:
         """
         Initialize a new instance of the Settings.
@@ -46,6 +49,8 @@ class Settings:
         :param username: Username to authenticate at Cobbler's API.
         :param password: Password for authentication with Cobbler.
         :param password_file: Path to the file containing the password.
+        :param prefetch_size: Chunk size when fetching files from Cobbler.
+        :param static_fallback_dir: Path to the directory with static TFTP files.
         """
         # pylint: disable=R0913
 
@@ -54,11 +59,14 @@ class Settings:
         self.pid_file_path: Path = pid_file_path
         self.uri: str = uri
         self.user: str = username
+        self.token_refresh_interval: int = token_refresh_interval
+        self.prefetch_size: int = prefetch_size
         self.tftp_addr: str = tftp_addr
         self.tftp_port: int = tftp_port
         self.tftp_retries: int = tftp_retries
         self.tftp_timeout: int = tftp_timeout
         self.logging_conf: Optional[Path] = logging_conf
+        self.static_fallback_dir: Optional[Path] = static_fallback_dir
         self.__password: Optional[str] = password
         self.__password_file: Optional[Path] = password_file
 
@@ -147,11 +155,17 @@ class SettingsFactory:
             password_file: Optional[Path] = Path(cobbler_settings.get("password_file", None))  # type: ignore
         else:
             password_file = None
-        tftp_settings = self._settings_dict.get("tftp", None)
+        token_refresh_interval: int = cobbler_settings.get("token_refresh_interval", 1800)  # type: ignore
+        prefetch_size: int = self._settings_dict.get("prefetch_size", 4096)  # type: ignore
+        tftp_settings = self._settings_dict.get("tftp", {})
         tftp_addr: str = tftp_settings.get("address", "127.0.0.1")  # type: ignore
         tftp_port: int = tftp_settings.get("port", 69)  # type: ignore
         tftp_retries: int = tftp_settings.get("retries", 5)  # type: ignore
         tftp_timeout: int = tftp_settings.get("timeout", 2)  # type: ignore
+        if tftp_settings.get("static_fallback_dir", None) is not None:  # type: ignore
+            static_fallback_dir: Optional[Path] = Path(tftp_settings.get("static_fallback_dir", None))  # type: ignore
+        else:
+            static_fallback_dir = None
         if self._settings_dict.get("logging_conf", None) is not None:  # type: ignore
             logging_conf: Optional[Path] = Path(self._settings_dict.get("logging_conf", None))  # type: ignore
         else:
@@ -166,11 +180,14 @@ class SettingsFactory:
             username,
             password,
             password_file,
+            token_refresh_interval,
+            prefetch_size,
             tftp_addr,
             tftp_port,
             tftp_retries,
             tftp_timeout,
             logging_conf,
+            static_fallback_dir,
         )
 
         return settings
