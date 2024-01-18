@@ -42,8 +42,12 @@ jobs:
           else
               echo "match=dirty" >> $GITHUB_OUTPUT
           fi
+      - name: Print detected match
+        env:
+          MATCH: ${{ steps.check-tag.outputs.match }}
+        run: echo "Match is $MATCH"
       - name: Publish distribution to Test PyPI
-        if: github.ref == 'refs/heads/main' && steps.check-tag.outputs.match == 'prerelease'
+        if: github.ref == 'refs/heads/main' && (steps.check-tag.outputs.match == 'prerelease' || steps.check-tag.outputs.match == 'release')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
