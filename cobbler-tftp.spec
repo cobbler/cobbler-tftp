@@ -15,17 +15,12 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
-%if 0%{?suse_version} > 1500
-%bcond_without libalternatives
-%else
-%bcond_with libalternatives
-%endif
-
 %define python_package_name cobbler_tftp
 
+%define pythons python3
 %{?sle15_python_module_pythons}
 Name:           cobbler-tftp
-Version:        0.0.0+git.1705312236.c60217f
+Version:        
 Release:        0
 Summary:        The TFTP server daemon for Cobbler
 License:        GPL-2.0-or-later
@@ -34,6 +29,7 @@ Source0:        %{name}-%{version}.tar.gz
 
 %if 0%{?suse_version}
 BuildRequires:  python-rpm-macros
+BuildRequires:  systemd-rpm-macros
 %endif
 
 BuildRequires:  fdupes
@@ -42,6 +38,13 @@ BuildRequires:  %{python_module pip}
 BuildRequires:  %{python_module setuptools}
 BuildRequires:  %{python_module setuptools_scm}
 BuildRequires:  %{python_module wheel}
+BuildRequires:  %{python_module fbtftp}
+BuildRequires:  %{python_module python-daemon}
+BuildRequires:  %{python_module PyYAML}
+BuildRequires:  %{python_module click}
+BuildRequires:  %{python_module importlib-metadata}
+BuildRequires:  %{python_module importlib-resources}
+BuildRequires:  %{python_module schema}
 
 Requires:       python3-fbtftp
 Requires:       python3-python-daemon
@@ -50,15 +53,7 @@ Requires:       python3-click
 Requires:       python3-importlib-metadata
 Requires:       python3-importlib-resources
 Requires:       python3-schema
-%if %{with libalternatives}
-Requires:       alts
-BuildRequires:  alts
-%else
-Requires(post):   update-alternatives
-Requires(postun): update-alternatives
-%endif
 BuildArch:      noarch
-%python_subpackages
 
 %description
 Cobbler-TFTP is a lightweight CLI application written in Python that serves as a stateless TFTP server.
@@ -73,25 +68,29 @@ cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{ver
 
 %install
 %pyproject_install
-%python_clone -a %{buildroot}%{_bindir}/cobbler-tftp
-%python_expand %fdupes %{buildroot}%{$python_sitelib}
+%python_expand PYTHONPATH=%{buildroot}%{$python_sitelib} %{buildroot}%{_bindir}/cobbler-tftp setup --systemd-dir=%{_unitdir} --install-prefix=%{buildroot}
+%fdupes %{buildroot}%{_prefix}
 
 %pre
-%python_libalternatives_reset_alternative cobbler-tftp
+%service_add_pre cobbler-tftp.service
 
 %post
-%python_install_alternative cobbler-tftp
+%service_add_post cobbler-tftp.service
+
+%preun
+%service_del_preun cobbler-tftp.service
 
 %postun
-%python_uninstall_alternative cobbler-tftp
+%service_del_postun cobbler-tftp.service
 
-%files %{python_files}
+%files
 %license LICENSE
 %doc README.md
-%python_alternative %{_bindir}/cobbler-tftp
-%{_bindir}/cobbler-tftp-%{python_bin_suffix}
+%{_bindir}/cobbler-tftp
 %{python_sitelib}/%{python_package_name}
 %{python_sitelib}/%{python_package_name}-*.dist-info
+%config /etc/cobbler-tftp
+%{_unitdir}/cobbler-tftp.service
 
 %changelog
 

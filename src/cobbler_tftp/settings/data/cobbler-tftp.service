@@ -1,0 +1,11 @@
+[Unit]
+Description=Cobbler TFTP Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/cobbler-tftp start --no-daemon
+PrivateTmp=yes
+Type=exec
+
+[Install]
+WantedBy=multi-user.target
