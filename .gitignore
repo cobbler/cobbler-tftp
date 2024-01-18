@@ -10,10 +10,6 @@ __pycache__/
 .idea/
 .vscode/
 
-# Documentation
-changelog/*
-!changelog/.gitkeep
-
 # Distribution / packaging
 .Python
 build/
