@@ -3,6 +3,7 @@ Cobbler-tftp will be managable as a command-line service.
 """
 
 import os
+import sys
 from pathlib import Path
 from signal import SIGCHLD, SIGTERM
 from typing import List, Optional
@@ -16,8 +17,14 @@ try:
 except ImportError:  # use backport for Python versions older than 3.8
     import importlib_metadata
 
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
+
 from cobbler_tftp.server import run_server
 from cobbler_tftp.settings import SettingsFactory
+from cobbler_tftp.utils import copy_file
 
 try:
     __version__ = importlib_metadata.version("cobbler_tftp")
@@ -57,7 +64,11 @@ def cli(ctx):
     help="Enable or disable auto migration of settings.",
 )
 @click.option(
-    "--config", "-c", type=click.Path(), help="Set location of configuration file."
+    "--config",
+    "-c",
+    default="/etc/cobbler-tftp/settings.yml",
+    type=click.Path(),
+    help="Set location of configuration file.",
 )
 @click.option(
     "--settings",
@@ -149,7 +160,70 @@ def stop(config: Optional[str], pid_file: Optional[str]):
     pid_file_path.unlink()
 
 
+@cli.command()
+@click.option(
+    "--systemd-dir",
+    type=click.Path(),
+    default="/etc/systemd/system",
+    help="Where to install systemd unit files",
+)
+@click.option(
+    "--config-dir",
+    type=click.Path(),
+    default="/etc/cobbler-tftp",
+    help="Where to install the configuration files for cobbler-tftp",
+)
+@click.option(
+    "--systemd/--no-systemd",
+    is_flag=True,
+    default=True,
+    help="Whether to install systemd unit files or not",
+)
+@click.option(
+    "--install-prefix",
+    type=click.Path(),
+    default=None,
+    help="Installation prefix for the file locations that will be ignored during runtime",
+)
+def setup(
+    systemd_dir: str,
+    config_dir: str,
+    systemd: bool,
+    install_prefix: Optional[str],
+):
+    """
+    Install configuration files and systemd unit files into the specified directories
+    """
+    if install_prefix is not None:
+        systemd_path = Path(install_prefix, systemd_dir.strip("/"))
+        config_path = Path(install_prefix, config_dir.strip("/"))
+    else:
+        systemd_path = Path(systemd_dir)
+        config_path = Path(config_dir)
+        config_dir = str(config_path.absolute())
+    try:
+        config_path.mkdir(parents=True, exist_ok=True)
+        source_path = files("cobbler_tftp.settings.data")
+        if systemd:
+            systemd_path.mkdir(parents=True, exist_ok=True)
+            copy_file(source_path, systemd_path, "cobbler-tftp.service")
+        copy_file(
+            source_path,
+            config_path,
+            "settings.yml",
+            [("/etc/cobbler-tftp", config_dir)],
+        )
+        copy_file(source_path, config_path, "logging.conf")
+    except PermissionError as err:
+        click.echo(err, err=True)
+        click.echo(
+            "Try changing the --systemd-dir/--config-dir parameters or running as root."
+        )
+        sys.exit(1)
+
+
 cli.add_command(start)
 cli.add_command(version)
 cli.add_command(print_default_config)
 cli.add_command(stop)
+cli.add_command(setup)
