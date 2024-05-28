@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Cobbler-TFTP"
-copyright = "2023, Christopher Hock"
-author = "Christopher Hock"
+copyright = "2023, The Cobbler Team"
+author = "The Cobbler Team"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
