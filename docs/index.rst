@@ -12,7 +12,7 @@ Cobbler-TFTP is a stateless TFTP server for the dynamic creation of configuratio
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    Quickstart Guide <quickstart-guide>
    Installation <installation>
    Configuration <configuration>
