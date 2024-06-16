@@ -41,7 +41,7 @@ These **will override the configuration from your configuration file**.
 
 Cobbler-TFTP will automatically search for environment variables in this format:
 
-.. code-block:: bash
+.. code-block:: text
 
    COBBLER_TFTP__<PARENT_KEY>__<CHILD_KEY>__<...>__<KEY>=<VALUE>
 
@@ -65,7 +65,7 @@ parameters.
 
 These must be given in the format:
 
-.. code-block:: bash
+.. code-block:: text
 
    <PARENT_KEY>.<CHILD_KEY>.<..>.<KEY>=<VALUE>
 
