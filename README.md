@@ -20,135 +20,22 @@ It seamlessly integrates with Cobbler to generate and serve boot configuration f
 - Dynamic on-demand generation of boot configuration files for efficient resource use
 - Configurable daemon process
 
-## Installation (WIP)
+## Quickstart
 
 Please note that Cobbler-TFTP is currently still in an early development stage and is not yet ready to be released.
-However, these methods of Installation will be available:
 
-### Installation Requirements
-
-To install and use Cobbler-TFTP, please make sure you have *at least Python 3.6* installed.
-
-### Install via `pip`
-
-Cobbler-TFTP is published to PyPi.
-To install it, please make sure that your system fulfills the installation requirements listed above and has `pip`,
-the Python package manager, installed.
-
-To install Cobbler-TFTP you can then simply run:
-```bash
-pip install cobbler-tftp
-```
-
-### Install on Linux via Package manager
-
-Cobbler-TFTP is packaged for a number of Linux distributions.
-
-Note: The native linux packages do not yet exist.
-These instructions are just representing what we have planned for the near future.
-
-#### Install on openSUSE
+To get started quickly with `cobbler-tftp`, simply install it using `pip` and start the daemon.
 
 ```bash
-sudo zypper install cobbler-tftp
+pip install cobbler-tftp && cobbler-tftp
 ```
 
-#### Install on Fedora
-
-```bash
-sudo dnf install cobbler-tftp
-```
-
-#### Install on Debian, Ubuntu and Linux Mint
-
-```bash
-sudo apt install cobbler-tftp
-```
-
-<!-- ### Install as container from Docker Hub -->
-
-## Usage
-
-You can use Cobbler-TFTP out of the box when providing it your Cobbler API credentials.
-
-You can do so with a `settings.yml`configuration file, environment variables and/or command line flags.
-
-To run Cobbler-TFTP simply run:
-
-```bash
-cobbler-tftp
-```
-
-### Configuring Cobbler-TFTP
-
-The default parameters for Cobbler-TFTP's application settings will be taken, if no configuration file,
-command line argument or environment variable can be found, will be as follows:
-
-```yaml
-schema: 1.0 # The version of the configuration schema to use
-auto_migrate_settings: false # Automatically migrate to the newest configuration schema
-is_daemon: true # Run Cobbler-TFTP as a daemon
-cobbler:
-  uri: "http://localhost/cobbler_api" # uri of your Cobbler API
-  username: "cobbler" # Username for Cobbler
-  password: "cobbler"
-  password_file: "/etc/cobbler-tftp/cobbler_password" # File containing your Cobbler password.
-```
-
-**Please note** that the `password` and `password_file` settings are mutually exclusive.
-Custom configuration files containing both parameters will not be accepted.
-
-#### Using a configuration yaml file
-
-Cobbler-TFTP can be configured using a custom `settings.yml` file.
-Note, that this file must contain at least all parameters listed above.
-
-To pass the file on you can pass the file location on as a CLI argument using the `-c` or `--config` flag:
-
-```bash
-cobbler-tftp -c path/to/your/file.yml
-```
-
-#### Using environment variables
-
-You can set certain parameters of Cobbler-TFTP's behavior by using environment variables.
-These will override the configuration from your configuration file.
-
-Cobbler-TFTP will automatically search for environment variables in this format:
-
-```
-COBBLER_TFTP__<PARENT_KEY>__<CHILD_KEY>__<...>__<KEY>=<VALUE>
-```
-
-For example your variables might look like this:
-
-```
-COBBLER_TFTP__IS_DAEMON=true
-```
-
-or, in case of your Cobbler settings:
-
-```
-COBBLER_TFTP__COBBLER__URI=http://your.domain.com/cobbler_api
-```
-
-#### Using CLI arguments
-
-You can also provide Cobbler-TFTP with CLI arguments to override some or all of the above parameters.
-
-These must be given in the format:
-
-```
-<PARENT_KEY>.<CHILD_KEY>.<...>.<KEY>=<VALUE>
-```
-
-These arguments will override all of the parameters above and will be lost when the service is stopped and restarted.
-
-We advise you to use this option for testing purposes only.
+For a more in-depth guide on how to use and configure `cobbler-tftp` - as well as additional
+installation options - please refer to our [documentation](https://cobbler-tftp.readthedocs.io/en/latest/).
 
 ## Documentation
 
-You can find our latest documentation on our [Read the Docs Page](https://cobbler-tftp.readthedocs.io/en/latest/)
+You can find our latest documentation on our [Read the Docs Page](https://cobbler-tftp.readthedocs.io/en/latest/).
 
 ## Contributing
 
