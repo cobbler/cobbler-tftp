@@ -26,7 +26,7 @@ RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobb
     && zypper --gpg-auto-import-keys refresh
 
 # Dev Dependencies
-RUN zypper in cobbler-tftp \
+RUN zypper in -y cobbler-tftp \
     && zypper clean
 
 EXPOSE 69/UDP
