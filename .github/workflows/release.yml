@@ -20,7 +20,7 @@ jobs:
       - name: Update package cache
         run: sudo apt-get -yq update
       - name: Install Deps for installing project
-        run: pip install wheel
+        run: pip install wheel setuptools
       - name: Install Deps with pip
         run: pip install .
       - name: Install pypa/build
