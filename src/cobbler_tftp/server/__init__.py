@@ -11,7 +11,7 @@ from cobbler_tftp.settings import Settings
 try:
     from importlib.resources import files
 except ImportError:
-    from importlib_resources import files
+    from importlib_resources import files  # type: ignore
 
 
 def run_server(application_settings: Settings):
@@ -19,8 +19,8 @@ def run_server(application_settings: Settings):
 
     logging_conf = application_settings.logging_conf
     if logging_conf is None or not logging_conf.exists():
-        logging_conf = files("cobbler_tftp.settings.data").joinpath("logging.conf")
-    logging.config.fileConfig(str(logging_conf))
+        logging_conf = files("cobbler_tftp.settings.data").joinpath("logging.conf")  # type: ignore
+    logging.config.fileConfig(str(logging_conf))  # type: ignore
     logging.debug("Server starting...")
     try:
         server = TFTPServer(application_settings)

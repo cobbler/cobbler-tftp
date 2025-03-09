@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import yaml
 
@@ -207,15 +207,15 @@ class SettingsFactory:
                     f"Warning: No configuration file found at {config_path}! Using default configuration file..."
                 )
             try:
-                config_file_content = (
-                    files("cobbler_tftp.settings.data")
+                config_file_content: str = (  # type: ignore
+                    files("cobbler_tftp.settings.data")  # type: ignore
                     .joinpath("settings.yml")
                     .read_text(encoding="UTF-8")  # type: ignore
                 )
-                self._settings_dict = yaml.safe_load(config_file_content)
+                self._settings_dict = yaml.safe_load(config_file_content)  # type: ignore
             except yaml.YAMLError:
                 print(f"Error: No valid configuration file found at {config_path}!")
-        elif config_path is not None:
+        elif config_path is not None:  # type: ignore
             try:
                 config_file_content = config_path.read_text(encoding="UTF-8")
                 self._settings_dict = yaml.safe_load(config_file_content)
