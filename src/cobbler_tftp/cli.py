@@ -9,26 +9,25 @@ from signal import SIGCHLD, SIGTERM
 from typing import List, Optional
 
 import click
-import yaml
-from daemon import DaemonContext
+from daemon import DaemonContext  # type: ignore
 
 try:
     import importlib.metadata as importlib_metadata
 except ImportError:  # use backport for Python versions older than 3.8
-    import importlib_metadata
+    import importlib_metadata  # type: ignore
 
 try:
     from importlib.resources import files
 except ImportError:
-    from importlib_resources import files
+    from importlib_resources import files  # type: ignore
 
 from cobbler_tftp.server import run_server
 from cobbler_tftp.settings import SettingsFactory
-from cobbler_tftp.utils import copy_file
+from cobbler_tftp.utils import copy_file  # type: ignore
 
 try:
-    __version__ = importlib_metadata.version("cobbler_tftp")
-except importlib_metadata.PackageNotFoundError:
+    __version__ = importlib_metadata.version("cobbler_tftp")  # type: ignore
+except importlib_metadata.PackageNotFoundError:  # type: ignore
     __version__ = "unknown (not installed)"
 
 _context_settings = dict(help_option_names=["-h", "--help"])
@@ -36,7 +35,7 @@ _context_settings = dict(help_option_names=["-h", "--help"])
 
 @click.group(context_settings=_context_settings, invoke_without_command=True)
 @click.pass_context
-def cli(ctx):
+def cli(ctx: click.Context):
     """
     Cobbler-TFTP - Copyright (c) 2022 The Cobbler Team. (github.com/cobbler)\n
     Licensed under the terms of the GPLv2.0 license.
@@ -203,7 +202,7 @@ def setup(
         config_dir = str(config_path.absolute())
     try:
         config_path.mkdir(parents=True, exist_ok=True)
-        source_path = files("cobbler_tftp.settings.data")
+        source_path = files("cobbler_tftp.settings.data")  # type: ignore
         if systemd:
             systemd_path.mkdir(parents=True, exist_ok=True)
             copy_file(source_path, systemd_path, "cobbler-tftp.service")

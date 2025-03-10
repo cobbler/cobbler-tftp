@@ -1,6 +1,7 @@
 """
 This module implements all necessary fixtures for running the unittests using pytests. They are automaticall discovered.
 """
+
 from pathlib import Path
 
 import pytest
@@ -10,7 +11,7 @@ from cobbler_tftp.types import SettingsDict
 try:
     import importlib.resources as importlib_resources
 except ImportError:
-    import importlib_resources as importlib_resources  # type: ignore
+    import importlib_resources  # type: ignore
 
 
 @pytest.fixture
@@ -38,8 +39,9 @@ def fake_settings_dict() -> SettingsDict:
 
 
 @pytest.fixture
-def settings_path():
-    with importlib_resources.path(
+def settings_path() -> Path:
+    # pyright cannot work with our try-except import for older Python versions
+    with importlib_resources.path(  # type: ignore[reportUnkownMemberType]
         "src.cobbler_tftp.settings.data", "settings.yml"
-    ) as settings_path:
-        return settings_path
+    ) as settings_path:  # type: ignore[reportUnkownVariableType]
+        return settings_path  # type: ignore[reportUnkownVariableType]

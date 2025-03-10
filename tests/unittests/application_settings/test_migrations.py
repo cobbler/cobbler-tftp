@@ -2,12 +2,13 @@
 Tests for the settings schemas in the migrations module.
 """
 
+import pathlib
 from pathlib import Path
-from typing import List
+from typing import Any, List, Optional
 
 import pytest
 import pytest_mock
-from schema import Schema
+from schema import Schema  # type: ignore[reportMissingTypeStubs]
 
 import cobbler_tftp.settings.migrations as migrations
 from cobbler_tftp.types import SettingsDict
@@ -36,7 +37,7 @@ def reset_version_list():
     migrations.discover_migrations()
 
 
-def test_get_schema_version(fake_settings_dict):
+def test_get_schema_version(fake_settings_dict: SettingsDict):
     # Arrange & Act
     schema_version = migrations.get_schema_version(fake_settings_dict)
 
@@ -115,7 +116,7 @@ def test_get_current_schema_version(mocker: "pytest_mock.MockerFixture"):
     assert result == version
 
 
-def test_migrate_without_parameters(mocker):
+def test_migrate_without_parameters(mocker: "pytest_mock.MockerFixture"):
     # Arrange
     mock_auto_migrate = mocker.patch(
         "cobbler_tftp.settings.migrations.migrate", return_value=SettingsDict
@@ -157,7 +158,14 @@ def test_migrate_without_parameters(mocker):
         ),
     ],
 )
-def test_migrate(settings_dict, settings_path, old, new, expected, expected_exception):
+def test_migrate(
+    settings_dict: SettingsDict,
+    settings_path: pathlib.Path,
+    old: migrations.CobblerTftpSchemaVersion,
+    new: migrations.CobblerTftpSchemaVersion,
+    expected: Optional[SettingsDict],
+    expected_exception: Any,
+):
     # Arrange
     if expected is not None and old and new is None:
         expected = expected()
@@ -169,7 +177,9 @@ def test_migrate(settings_dict, settings_path, old, new, expected, expected_exce
 
 
 def test_auto_migrate_calls_migrate(
-    mocker: "pytest_mock.MockerFixture", fake_settings_dict, settings_path
+    mocker: "pytest_mock.MockerFixture",
+    fake_settings_dict: SettingsDict,
+    settings_path: pathlib.Path,
 ):
     # Arrange
     migrations.VERSION_LIST[
@@ -187,7 +197,9 @@ def test_auto_migrate_calls_migrate(
     mock_migrate.assert_called_once_with(fake_settings_dict, settings_path)
 
 
-def test_auto_migrate_raises_runtime_error(fake_settings_dict, settings_path):
+def test_auto_migrate_raises_runtime_error(
+    fake_settings_dict: SettingsDict, settings_path: pathlib.Path
+):
     # Arrange
     fake_settings_dict["auto_migrate_settings"] = False
 
@@ -196,7 +208,9 @@ def test_auto_migrate_raises_runtime_error(fake_settings_dict, settings_path):
         migrations.auto_migrate(fake_settings_dict, settings_path)
 
 
-def test_auto_migrate_raises_value_error(fake_settings_dict, settings_path):
+def test_auto_migrate_raises_value_error(
+    fake_settings_dict: SettingsDict, settings_path: pathlib.Path
+):
     # Arrange
     fake_settings_dict["schema"] = "not float"
 
@@ -206,17 +220,19 @@ def test_auto_migrate_raises_value_error(fake_settings_dict, settings_path):
 
 
 def test_auto_migrate_raises_value_error_if_verions_empty(
-    fake_settings_dict, settings_path
+    fake_settings_dict: SettingsDict, settings_path: pathlib.Path
 ):
     # Arrange
-    fake_settings_dict["schema"] = migrations.EMPTY_VERSION
+    fake_settings_dict["schema"] = migrations.EMPTY_VERSION  # type: ignore[reportArgumentType]
 
     # Act and Assert
     with pytest.raises(ValueError):
         migrations.auto_migrate(fake_settings_dict, settings_path)
 
 
-def test_validate(mocker, fake_settings_dict):
+def test_validate(
+    mocker: "pytest_mock.MockerFixture", fake_settings_dict: SettingsDict
+):
     # Arrange
     mock_validation_module = mocker.MagicMock()
     mock_validation_module.validate = mocker.MagicMock(return_value=True)
@@ -235,7 +251,9 @@ def test_validate(mocker, fake_settings_dict):
     assert result is True
 
 
-def test_normalize(mocker, fake_settings_dict):
+def test_normalize(
+    mocker: "pytest_mock.MockerFixture", fake_settings_dict: SettingsDict
+):
     # Arrange
     mock_validation_module = mocker.MagicMock()
     mock_validation_module.normalize = mocker.MagicMock(return_value=True)

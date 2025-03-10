@@ -7,13 +7,14 @@ The validation logic of the current version is located in the version's migratio
 """
 
 import re
+import sys
 from importlib import import_module
 from inspect import signature
 from pathlib import Path
 from types import ModuleType
 from typing import Dict, List
 
-from schema import Schema
+from schema import Schema  # type: ignore[reportMissingTypeStubs]
 
 from cobbler_tftp.exceptions.settings_exceptions import (
     CobblerTftpMissingConfigParameterException,
@@ -23,7 +24,7 @@ from cobbler_tftp.types import SettingsDict
 try:
     import importlib.resources as importlib_resources
 except ImportError:
-    import importlib_resources
+    import importlib_resources  # type: ignore[reportMissingTypeStubs]
 
 
 class CobblerTftpSchemaVersion:
@@ -114,8 +115,8 @@ EMPTY_VERSION: CobblerTftpSchemaVersion = CobblerTftpSchemaVersion()
 VERSION_LIST: Dict[CobblerTftpSchemaVersion, ModuleType] = {}
 _CONFIG_FILE_PATH: Path = Path()
 
-with importlib_resources.path(__package__, "versioning.cfg") as config_path:
-    _CONFIG_FILE_PATH = config_path
+with importlib_resources.path(__package__, "versioning.cfg") as config_path:  # type: ignore
+    _CONFIG_FILE_PATH = config_path  # type: ignore
 
 
 def __validate_module(name: ModuleType) -> bool:
@@ -130,16 +131,28 @@ def __validate_module(name: ModuleType) -> bool:
     :return: True if every criteria is met otherwise False
     """
     # noqa for these lines because we can't use the custom types to check this.
-    module_methods = {
-        "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->bool",  # noqa
-        "normalize": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
-        "migrate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
-    }
+    # pylint: disable=line-too-long
+    if sys.version_info[:2] >= (3, 13):
+        # Starting with Python 3.13 it appears that the real internal path is exposed
+        module_methods = {
+            "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]])->bool",  # noqa
+            "normalize": "(settings_dict:Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]])->Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]]",  # noqa
+            "migrate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]])->Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]]",  # noqa
+        }
+    else:
+        module_methods = {
+            "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->bool",  # noqa
+            "normalize": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
+            "migrate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]])->Dict[str,Union[float,bool,str,pathlib.Path,Dict[str,Union[int,str,pathlib.Path]]]]",  # noqa
+        }
+    # pylint: enable=line-too-long
 
     for key, value in module_methods.items():
         if not hasattr(name, key):
             return False
         sig = str(signature(getattr(name, key))).replace(" ", "")
+        print(value)
+        print(sig)
         if value != sig:
             return False
     return True
@@ -188,12 +201,12 @@ def discover_migrations() -> None:
         * those version must have a certain signature
     """
     # importlib.resources.contents is deprecated with 3.11 but files().iterdir() is not yet available in 3.7
-    folder_iterator = importlib_resources.contents("cobbler_tftp.settings.migrations")
+    folder_iterator = importlib_resources.contents("cobbler_tftp.settings.migrations")  # type: ignore
     filename_regex = r"v[0-9]*_[0-9]*.py"
-    for files in folder_iterator:
-        if not re.match(filename_regex, files):
+    for files in folder_iterator:  # type: ignore
+        if not re.match(filename_regex, files):  # type: ignore
             continue
-        files = Path(files)
+        files = Path(files)  # type: ignore
         if files.is_symlink():
             continue
         migration_name = ""

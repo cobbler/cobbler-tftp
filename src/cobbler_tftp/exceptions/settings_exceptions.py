@@ -1,5 +1,7 @@
 """Custom exceptions for cobbler-tftp's settings module."""
 
+from typing import Optional
+
 
 class CobblerTftpSettingsException(Exception):
     """Generic cobbler-tftp exception."""
@@ -14,8 +16,8 @@ class CobblerTftpMissingConfigParameterException(KeyError):
 
     def __init__(
         self,
-        message="MissingConfigParameterException: Application settings missing required parameter!",
-        parameter: str = "NONE",
+        message: str = "MissingConfigParameterException: Application settings missing required parameter!",
+        parameter: Optional[str] = "NONE",
     ):
         """Create custom exception to raise when a specific config parameter is missing for the application settings."""
         if parameter is None or parameter == "NONE":

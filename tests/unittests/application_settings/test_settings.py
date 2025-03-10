@@ -4,11 +4,15 @@ Tests for the application settings module.
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
 
 from cobbler_tftp.settings import Settings, SettingsFactory
+
+if TYPE_CHECKING:
+    import pytest_mock
 
 
 @pytest.fixture
@@ -19,7 +23,7 @@ def settings_factory():
     return SettingsFactory()
 
 
-def assert_default_settings(settings):
+def assert_default_settings(settings: Settings):
     assert settings.auto_migrate_settings is False
     assert settings.is_daemon is True
     assert str(settings.pid_file_path) == "/run/cobbler-tftp.pid"
@@ -33,7 +37,7 @@ def assert_default_settings(settings):
     assert str(settings.logging_conf) == "/etc/cobbler-tftp/logging.conf"
 
 
-def assert_customized_settings(settings):
+def assert_customized_settings(settings: Settings):
     assert settings.auto_migrate_settings is True
     assert settings.is_daemon is False
     assert settings.uri == "http://testmachine.testnetwork.com/api"
@@ -46,7 +50,7 @@ def assert_customized_settings(settings):
 
 
 def test_build_settings_with_default_config_file(
-    settings_factory: SettingsFactory, mocker
+    settings_factory: SettingsFactory, mocker: "pytest_mock.MockerFixture"
 ):
     """
     Test the ``build_settings`` function without passing a config file path or additional arguments.
@@ -63,7 +67,7 @@ def test_build_settings_with_default_config_file(
 
 
 def test_build_settings_with_valid_config_file(
-    settings_factory: SettingsFactory, mocker
+    settings_factory: SettingsFactory, mocker: "pytest_mock.MockerFixture"
 ):
     valid_file_path = Path("tests/test_data/valid_config.yml")
     settings = settings_factory.build_settings(valid_file_path)
@@ -73,7 +77,7 @@ def test_build_settings_with_valid_config_file(
 
 
 def test_build_settings_with_absolute_config_path(
-    settings_factory: SettingsFactory, mocker
+    settings_factory: SettingsFactory, mocker: "pytest_mock.MockerFixture"
 ):
     absolute_path = Path("tests/test_data/valid_config.yml").absolute()
     settings = settings_factory.build_settings(absolute_path)
@@ -83,7 +87,7 @@ def test_build_settings_with_absolute_config_path(
 
 
 def test_build_settings_with_invalid_config_file(
-    settings_factory: SettingsFactory, mocker
+    settings_factory: SettingsFactory, mocker: "pytest_mock.MockerFixture"
 ):
     # Pass path to invalid yaml file in /test_data/invalid_config.yml
     # Assert that YAMLError gets raised
@@ -99,7 +103,7 @@ def test_build_settings_with_invalid_config_file(
 
 
 def test_build_settings_with_missing_config_file(
-    settings_factory: SettingsFactory, capsys
+    settings_factory: SettingsFactory, capsys: pytest.CaptureFixture[str]
 ):
     """
     Test the ``build_settings`` function while passing it a path without a config file present.

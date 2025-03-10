@@ -2,7 +2,13 @@
 
 from pathlib import Path
 
-from schema import Optional, Or, Schema, SchemaError, SchemaWrongKeyError
+from schema import (  # type: ignore[reportMissingTypeStubs]
+    Optional,
+    Or,
+    Schema,
+    SchemaError,
+    SchemaWrongKeyError,
+)
 
 from cobbler_tftp.types import SettingsDict
 
@@ -15,7 +21,10 @@ settings_schema: Schema = Schema(
         Optional("cobbler"): {
             Optional("uri"): str,
             Optional("username"): str,
-            Optional(Or("password", "password_file", only_one=True)): Or(str, Path),
+            # We cannot use only_one since python-schema is only available in 0.6.7 in SLES 15.6
+            # Optional(Or("password", "password_file", only_one=True)): Or(str, Path),  # type: ignore[reportArgumentType]
+            Optional("password"): Or(str, Path),  # type: ignore[reportArgumentType]
+            Optional("password_file"): Or(str, Path),  # type: ignore[reportArgumentType]
             Optional("token_refresh_interval"): int,
         },
         Optional("prefetch_size"): int,
@@ -38,7 +47,7 @@ def validate(settings_dict: SettingsDict) -> bool:
     :param settings_dict: The dictionary of configuration parameters to validate
     :return bool: True/False depending on whether the dicts match or not
     """
-    if settings_dict == {} or settings_dict is None:
+    if settings_dict == {} or settings_dict is None:  # type: ignore[reportUncessaryComparison]
         return False
 
     try:
