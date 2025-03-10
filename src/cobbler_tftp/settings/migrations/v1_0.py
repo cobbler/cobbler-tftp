@@ -21,7 +21,10 @@ settings_schema: Schema = Schema(
         Optional("cobbler"): {
             Optional("uri"): str,
             Optional("username"): str,
-            Optional(Or("password", "password_file", only_one=True)): Or(str, Path),  # type: ignore[reportArgumentType]
+            # We cannot use only_one since python-schema is only available in 0.6.7 in SLES 15.6
+            # Optional(Or("password", "password_file", only_one=True)): Or(str, Path),  # type: ignore[reportArgumentType]
+            Optional("password"): Or(str, Path),  # type: ignore[reportArgumentType]
+            Optional("password_file"): Or(str, Path),  # type: ignore[reportArgumentType]
             Optional("token_refresh_interval"): int,
         },
         Optional("prefetch_size"): int,
