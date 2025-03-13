@@ -2,8 +2,13 @@ name: Create GitHub Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   create-github-release:
@@ -15,8 +20,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Get Tag
-        run: echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the lates version tag. Otherwise the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
       - name: Generate Changelog
         run: |
           pip install towncrier
@@ -74,6 +85,7 @@ jobs:
           path: ../*.deb
 
       - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: ncipollo/release-action@v1.16.0
         with:
           # Put release artifacts here.
