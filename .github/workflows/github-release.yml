@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Get Tag or Commit
         # If run on a tag, artifacts are build with the lates version tag. Otherwise the last commit SHA is used.
@@ -45,7 +47,7 @@ jobs:
       - name: Install Build Dependencies
         run: |
           python -m pip install --upgrade pip
-          sudo apt-get install -y rpm
+          sudo apt-get update && sudo apt-get install -y rpm build-essential
           pip install build twine debhelper
       
       - name: Build WHL
@@ -64,10 +66,10 @@ jobs:
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
           python -m build
           cp dist/*.whl ~/rpmbuild/SOURCES/
+          cp cobbler-tftp.spec ~/rpmbuild/SPECS/
           echo "%define version ${REPO_TAG}" > ~/rpmbuild/.version
           rpmbuild --define "_topdir $(pwd)/../rpmbuild" \
-                  --define "version ${REPO_TAG}" \
-                  -ba setup.py
+                  --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
           ls ~/rpmbuild/RPMS/noarch/
 
       - name: Upload RPM Artifact
