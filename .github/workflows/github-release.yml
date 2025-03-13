@@ -20,6 +20,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      
       - name: Get Tag or Commit
         # If run on a tag, artifacts are build with the lates version tag. Otherwise the last commit SHA is used.
         run: |
@@ -28,21 +29,24 @@ jobs:
           else
             echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
           fi
-      - name: Generate Changelog
-        run: |
-          pip install towncrier
-          towncrier build --draft
-          cat $(ls -t changelog.d/*.fixed | head -n 1)
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      - name: Generate Changelog
+        run: |
+          pip install towncrier
+          pip install -e .
+          towncrier build --draft
+          cat $(ls -t changelog.d/*.fixed | head -n 1)
+      
       - name: Install Build Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build twine rpm-build debhelper python3-all
-
+      
       - name: Build WHL
         run: |
           python -m build
