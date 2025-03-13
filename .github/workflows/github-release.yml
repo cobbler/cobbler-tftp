@@ -68,8 +68,9 @@ jobs:
           cp dist/*.whl ~/rpmbuild/SOURCES/
           cp cobbler-tftp.spec ~/rpmbuild/SPECS/
           echo "%define version ${REPO_TAG}" > ~/rpmbuild/.version
-          rpmbuild --define "_topdir $(pwd)/../rpmbuild" \
-                  --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
+          rpmbuild --define "_topdir $(pwd)/~/rpmbuild" \
+            --define "version ${{ env.REPO_TAG }}" \
+            --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
           ls ~/rpmbuild/RPMS/noarch/
 
       - name: Upload RPM Artifact
