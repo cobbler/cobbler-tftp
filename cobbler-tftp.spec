@@ -20,7 +20,7 @@
 %define pythons python3
 %{?sle15_python_module_pythons}
 Name:           cobbler-tftp
-Version:        
+Version:        %{version}
 Release:        0
 Summary:        The TFTP server daemon for Cobbler
 License:        GPL-2.0-or-later
