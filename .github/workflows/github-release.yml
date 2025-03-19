@@ -1,0 +1,120 @@
+name: Create GitHub Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the lates version tag. Otherwise the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate Changelog
+        run: |
+          pip install towncrier
+          pip install -e .
+          towncrier build --draft
+          cat $(ls -t changelog.d/*.fixed | head -n 1)
+      
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update && sudo apt-get install -y rpm build-essential
+          pip install build twine debhelper
+      
+      - name: Build WHL
+        run: |
+          python -m build
+          ls dist/
+
+      - name: Upload WHL Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-wheel-${{ env.REPO_TAG }}
+          path: dist/*.whl
+
+
+      - name: Build RPM in openSUSE Container
+        run: |
+          # Run the RPM build inside an openSUSE Tumbleweed container
+          docker run --rm -v $(pwd):/workspace -w /workspace opensuse/tumbleweed sh -c '
+              # Install required dependencies
+              zypper -n refresh &&
+              zypper -n install rpm-build python-rpm-macros python313 python313-pip python313-setuptools python313-wheel python313-build python313-click python313-python-daemon python313-PyYAML python313-importlib-metadata python313-importlib-resources python313-schema git fdupes
+
+              # Set up RPM build directories
+              mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+              # Extract version
+              VERSION=$(awk -F' = ' '/version/ {print \$2}' setup.cfg)
+              echo "%define version ${VERSION}" > ~/rpmbuild/.version
+
+              # Copy required files into build environment
+              cp dist/*.whl ~/rpmbuild/SOURCES/
+              cp cobbler-tftp.spec ~/rpmbuild/SPECS/
+
+              # Run rpmbuild inside the container
+              rpmbuild --define "_topdir ~/rpmbuild" \
+                       --define "version ${VERSION}" \
+                       --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
+
+              # List built RPMs
+              ls ~/rpmbuild/RPMS/noarch/
+          '
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-rpm-${{ env.REPO_TAG }}
+          path: ~/rpmbuild/RPMS/noarch/*.rpm
+
+      - name: Build DEB
+        run: |
+          python -m build
+          cp dist/*.whl ..
+          dpkg-buildpackage -us -uc -b --changes-option=-y
+          ls ../
+
+      - name: Upload DEB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-deb-${{ env.REPO_TAG }}
+          path: ../*.deb
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1.16.0
+        with:
+          # Put release artifacts here.
+          artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
