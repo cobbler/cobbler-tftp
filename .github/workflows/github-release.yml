@@ -61,23 +61,37 @@ jobs:
           name: cobbler-tftp-wheel-${{ env.REPO_TAG }}
           path: dist/*.whl
 
-      - name: Build RPM
+
+      - name: Build RPM in openSUSE Container
         run: |
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          python -m build
-          cp dist/*.whl ~/rpmbuild/SOURCES/
-          cp cobbler-tftp.spec ~/rpmbuild/SPECS/
-          echo "%define version ${REPO_TAG}" > ~/rpmbuild/.version
-          rpmbuild --define "_topdir $(pwd)/~/rpmbuild" \
-            --define "version ${{ env.REPO_TAG }}" \
-            --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
-          ls ~/rpmbuild/RPMS/noarch/
+          # Run the RPM build inside an openSUSE Tumbleweed container
+          docker run --rm -v $(pwd):/workspace -w /workspace opensuse/tumbleweed sh -c '
+              # Install required dependencies
+              zypper -n refresh &&
+              zypper -n install rpm-build python-rpm-macros python313 python313-pip python313-setuptools python313-wheel python313-build python313-click python313-python-daemon python313-PyYAML python313-importlib-metadata python313-importlib-resources python313-schema git fdupes
+
+              # Set up RPM build directories
+              mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+              # Extract version
+              VERSION=$(awk -F" = " "/version/ {print $2}" setup.cfg)
+              echo "%define version ${VERSION}" > ~/rpmbuild/.version
+
+              # Copy required files into build environment
+              cp dist/*.whl ~/rpmbuild/SOURCES/
+              cp cobbler-tftp.spec ~/rpmbuild/SPECS/
+
+              # Run rpmbuild inside the container
+              rpmbuild --define "_topdir ~/rpmbuild" \
+                       --define "version ${VERSION}" \
+                       --bb ~/rpmbuild/SPECS/cobbler-tftp.spec
+          '
 
       - name: Upload RPM Artifact
         uses: actions/upload-artifact@v4
         with:
           name: cobbler-tftp-rpm-${{ env.REPO_TAG }}
-          path: ~/rpmbuild/RPMS/noarch/*.rpm
+          path: ~/rpmbuild/RPMS/**/*.rpm
 
       - name: Build DEB
         run: |
@@ -98,3 +112,6 @@ jobs:
         with:
           # Put release artifacts here.
           artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
