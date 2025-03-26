@@ -77,7 +77,7 @@ jobs:
         run: |
           python -m build
           cp dist/*.whl ..
-          dpkg-buildpackage -us -uc -b --changes-option=-y
+          DEB_BUILD_OPTIONS="nocheck" dpkg-buildpackage -us -uc -b
           ls ../
 
       - name: Upload DEB Artifact
