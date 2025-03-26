@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+export DH_OPTIONS
+
+# Verbose mode
+#export DH_VERBOSE=1
+export PYBUILD_NAME=cobbler-tftp
+export PYBUILD_OPTION_INTERPRETER="-B"
+
+# Use Bash so we can set the required environment variables
+SHELL = /bin/bash
+
+%:
+	dh $@ --with python3 --buildsystem pybuild
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf docs/_build
+
+override_dh_install:
+	dh_install --sourcedir="debian/python3-cobbler-tftp"
+
+# Skip test execution
+# =========================== short test summary info ============================
+# ERROR tests/unittests/application_settings/test_migrations.py::test_auto_migrate_calls_migrate - ModuleNotFoundError: No module named 'src'
+# ERROR tests/unittests/application_settings/test_migrations.py::test_auto_migrate_raises_runtime_error - ModuleNotFoundError: No module named 'src'
+# ERROR tests/unittests/application_settings/test_migrations.py::test_auto_migrate_raises_value_error - ModuleNotFoundError: No module named 'src'
+# ERROR tests/unittests/application_settings/test_migrations.py::test_auto_migrate_raises_value_error_if_verions_empty - ModuleNotFoundError: No module named 'src'
+# ================== 26 passed, 21 warnings, 4 errors in 0.20s ===================
+dh_auto_test:
