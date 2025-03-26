@@ -47,8 +47,8 @@ jobs:
       - name: Install Build Dependencies
         run: |
           python -m pip install --upgrade pip
-          sudo apt-get update && sudo apt-get install -y rpm build-essential
-          pip install build twine debhelper
+          sudo apt-get update && sudo apt-get install -y rpm build-essential debhelper dh-python python3-setuptools python3-setuptools-scm python3-pytest python3-schema python3-daemon python3-yaml python3-click python3-fbtftp python3-pytest-mock
+          pip install build twine
       
       - name: Build WHL
         run: |
