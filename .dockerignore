@@ -1,0 +1,11 @@
+# IDE directories
+.idea/
+.eggs
+
+# Python venv
+.venv/
+venv/
+
+# Built packages
+rpms/
+debs/

@@ -134,3 +134,12 @@ dmypy.json
 # Self build packages
 rpms
 debs
+
+# Temporary debian files
+.pybuild
+debian/.debhelper
+debian/cobbler-tftp
+debian/cobbler-tftp.*.debhelper
+debian/cobbler-tftp.substvars
+debian/debhelper-build-stamp
+debian/files
