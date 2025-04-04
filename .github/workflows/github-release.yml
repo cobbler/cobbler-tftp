@@ -1,0 +1,147 @@
+name: Create GitHub Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-debs:
+    name: Build DEBs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+          echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build DEB
+        run: |
+          # Run the DEB build inside a Debian 12 container
+          make deb
+
+      - name: Upload DEB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-deb-${{ env.REPO_TAG }}
+          path: ./debs/**/*.deb
+  build-rpms:
+    name: Build RPMs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build RPM in openSUSE Container
+        run: |
+          # Run the RPM build inside an openSUSE Tumbleweed container
+          make rpm
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-rpm-${{ env.REPO_TAG }}
+          path: ./rpms/**/*.rpm
+  build-wheel:
+    name: Build Python Wheel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate Changelog
+        run: |
+          pip install towncrier
+          pip install -e .
+          towncrier build --draft
+          cat $(ls -t changelog.d/*.fixed | head -n 1)
+
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update && sudo apt-get install -y python3-setuptools python3-setuptools-scm python3-pytest python3-schema python3-daemon python3-yaml python3-click python3-fbtftp python3-pytest-mock
+          pip install build twine
+
+      - name: Build WHL
+        run: |
+          python -m build
+          ls dist/
+
+      - name: Upload WHL Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobbler-tftp-wheel-${{ env.REPO_TAG }}
+          path: dist/*.whl
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-debs, build-rpms, build-wheel]
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # https://github.com/actions/download-artifact
+      - name: Download all artifacts
+        id: download-artifact
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1.16.0
+        with:
+          # Put release artifacts here.
+          artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true

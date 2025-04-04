@@ -151,8 +151,6 @@ def __validate_module(name: ModuleType) -> bool:
         if not hasattr(name, key):
             return False
         sig = str(signature(getattr(name, key))).replace(" ", "")
-        print(value)
-        print(sig)
         if value != sig:
             return False
     return True

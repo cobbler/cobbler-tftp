@@ -1,0 +1,5 @@
+cobbler-tftp (0.0.1) unstable; urgency=low
+
+  * Initial packaging of Cobbler-TFTP 0.0.1
+
+ --  Enno Gotthold <enno@4seul.de>  Tue, 26 Mar 2024 09:30:00 +0200

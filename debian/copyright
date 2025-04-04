@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cobbler-tftp
+Upstream-Contact: Enno Gotthold <enno@4seul.de>
+Source: https://github.com/cobbler/cobbler-tftp
+
+Files: *
+Copyright: 2006-2025 The Cobbler Team
+License: GPL-2+
+
+# TODO: Add individual copyright of all files having explicit spdx headers
