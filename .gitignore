@@ -143,3 +143,6 @@ debian/cobbler-tftp.*.debhelper
 debian/cobbler-tftp.substvars
 debian/debhelper-build-stamp
 debian/files
+
+# Version file
+src/cobbler_tftp/data/version.cfg
