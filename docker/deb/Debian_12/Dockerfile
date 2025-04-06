@@ -14,6 +14,7 @@ RUN apt-get update -qq && \
     debhelper  \
     devscripts \
     dh-python  \
+    git \
     python3-setuptools  \
     python3-pip  \
     python3-setuptools-scm  \
