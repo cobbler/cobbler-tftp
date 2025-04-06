@@ -64,6 +64,7 @@ It seamlessly integrates with Cobbler to generate and serve boot configuration f
 
 %build
 cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{version}
+%python_exec -m setuptools_scm --force-write-version-files
 %pyproject_wheel
 
 %install
