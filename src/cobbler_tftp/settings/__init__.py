@@ -1,6 +1,7 @@
 """Build an object containing all cobbler-tftp configuration parameters."""
 
 import os
+from importlib.resources import files
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -8,11 +9,6 @@ import yaml
 
 from cobbler_tftp.settings import migrations
 from cobbler_tftp.types import SettingsDict
-
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files  # type: ignore
 
 
 class Settings:

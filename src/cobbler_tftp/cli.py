@@ -2,24 +2,16 @@
 Cobbler-tftp will be managable as a command-line service.
 """
 
+import importlib.metadata as importlib_metadata
 import os
 import sys
+from importlib.resources import files
 from pathlib import Path
 from signal import SIGCHLD, SIGTERM
 from typing import List, Optional
 
 import click
 from daemon import DaemonContext  # type: ignore
-
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:  # use backport for Python versions older than 3.8
-    import importlib_metadata  # type: ignore
-
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files  # type: ignore
 
 from cobbler_tftp.server import run_server
 from cobbler_tftp.settings import SettingsFactory
