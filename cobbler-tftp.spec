@@ -34,9 +34,10 @@ BuildRequires:  systemd-rpm-macros
 
 BuildRequires:  fdupes
 BuildRequires:  git
+BuildRequires:  %{python_module base >= 3.8}
 BuildRequires:  %{python_module pip}
 BuildRequires:  %{python_module setuptools}
-BuildRequires:  %{python_module setuptools_scm}
+BuildRequires:  %{python_module setuptools_scm >= 8.0.0}
 BuildRequires:  %{python_module wheel}
 BuildRequires:  %{python_module fbtftp}
 BuildRequires:  %{python_module python-daemon}
@@ -50,8 +51,6 @@ Requires:       python3-fbtftp
 Requires:       python3-python-daemon
 Requires:       python3-PyYAML
 Requires:       python3-click
-Requires:       python3-importlib-metadata
-Requires:       python3-importlib-resources
 Requires:       python3-schema
 BuildArch:      noarch
 

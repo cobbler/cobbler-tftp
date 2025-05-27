@@ -4,14 +4,10 @@ This package contains the actual TFTP server.
 
 import logging
 import logging.config
+from importlib.resources import files
 
 from cobbler_tftp.server.tftp import TFTPServer
 from cobbler_tftp.settings import Settings
-
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files  # type: ignore
 
 
 def run_server(application_settings: Settings):

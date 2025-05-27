@@ -14,7 +14,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.9
+        python-version: 3.13
     - name: Install dependencies
       run:  pip install -U rstcheck doc8 sphinx
     - name: Run rstcheck
@@ -36,7 +36,7 @@ jobs:
       runs-on: ubuntu-20.04
       strategy:
         matrix:
-          python-version: ["3.6", "3.9", "3.10"]
+          python-version: ["3.11", "3.12", "3.13"]
       steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -59,7 +59,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.6
+        python-version: 3.13
     - uses: isort/isort-action@master
       with:
         requirementsFiles: "pyproject.toml"

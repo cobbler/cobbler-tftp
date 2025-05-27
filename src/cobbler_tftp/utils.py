@@ -2,13 +2,9 @@
 Various utility functions for cobbler-tftp
 """
 
+from importlib.abc import Traversable
 from pathlib import Path
 from typing import List, Optional, Tuple
-
-try:
-    from importlib.abc import Traversable
-except ImportError:
-    from importlib_resources.abc import Traversable  # type: ignore
 
 
 def copy_file(
