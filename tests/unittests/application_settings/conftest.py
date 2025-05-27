@@ -2,16 +2,12 @@
 This module implements all necessary fixtures for running the unittests using pytests. They are automaticall discovered.
 """
 
+import importlib.resources as importlib_resources
 from pathlib import Path
 
 import pytest
 
 from cobbler_tftp.types import SettingsDict
-
-try:
-    import importlib.resources as importlib_resources
-except ImportError:
-    import importlib_resources  # type: ignore
 
 
 @pytest.fixture

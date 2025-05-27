@@ -2,24 +2,16 @@
 Cobbler-tftp will be managable as a command-line service.
 """
 
+import importlib.metadata as importlib_metadata
 import os
 import sys
+from importlib.resources import files
 from pathlib import Path
 from signal import SIGCHLD, SIGTERM
 from typing import List, Optional
 
 import click
 from daemon import DaemonContext  # type: ignore
-
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:  # use backport for Python versions older than 3.8
-    import importlib_metadata  # type: ignore
-
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files  # type: ignore
 
 from cobbler_tftp.server import run_server
 from cobbler_tftp.settings import SettingsFactory
@@ -203,6 +195,7 @@ def setup(
     try:
         config_path.mkdir(parents=True, exist_ok=True)
         source_path = files("cobbler_tftp.settings.data")  # type: ignore
+        source_path_version = files("cobbler_tftp.data")
         if systemd:
             systemd_path.mkdir(parents=True, exist_ok=True)
             copy_file(source_path, systemd_path, "cobbler-tftp.service")
@@ -213,6 +206,7 @@ def setup(
             [("/etc/cobbler-tftp", config_dir)],
         )
         copy_file(source_path, config_path, "logging.conf")
+        copy_file(source_path_version, config_path, "version.cfg")
     except PermissionError as err:
         click.echo(err, err=True)
         click.echo(

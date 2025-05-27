@@ -6,6 +6,7 @@ One migration should be able to update from version x to version x+1, where x is
 The validation logic of the current version is located in the version's migration file.
 """
 
+import importlib.resources as importlib_resources
 import re
 import sys
 from importlib import import_module
@@ -20,11 +21,6 @@ from cobbler_tftp.exceptions.settings_exceptions import (
     CobblerTftpMissingConfigParameterException,
 )
 from cobbler_tftp.types import SettingsDict
-
-try:
-    import importlib.resources as importlib_resources
-except ImportError:
-    import importlib_resources  # type: ignore[reportMissingTypeStubs]
 
 
 class CobblerTftpSchemaVersion:

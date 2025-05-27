@@ -24,6 +24,14 @@ cobbler-tftp = "cobbler_tftp.cli:cli"
 profile = "black"
 
 [tool.setuptools_scm]
+version_file = "src/cobbler_tftp/data/version.cfg"
+version_file_template = """
+[cobbler-tftp]
+gitdate = {scm_version.time}
+gitstamp = {scm_version.node}
+version = {version}
+version_tuple = [{version_tuple[0]}, {version_tuple[1]}, {version_tuple[2]}]
+"""
 
 [tool.towncrier]
 directory = "changelog.d"
