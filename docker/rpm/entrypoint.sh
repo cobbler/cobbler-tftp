@@ -2,12 +2,12 @@
 
 echo " ===> Extracting version"
 VERSION=$(python3 -m setuptools_scm)
-echo "%define version ${VERSION}" > ~/rpmbuild/.version
+echo "%define version ${VERSION}" >~/rpmbuild/.version
 
 echo " ===> Creating source archive"
 base=$(basename "$PWD")
 cd ..
-tar --exclude ".idea" --exclude="venv" --exclude "dist" --exclude "build" --transform="s/workspace/cobbler-tftp-${VERSION}/" -zcvf "cobbler-tftp-${VERSION}.tar.gz" /workspace
+tar --exclude "debian/cobbler-tftp" --exclude "debian/.debhelper" --exclude "debs" --exclude "rpms" --exclude ".mypy_cache" --exclude ".idea" --exclude="venv" --exclude "dist" --exclude "build" --transform="s/workspace/cobbler-tftp-${VERSION}/" -zcvf "cobbler-tftp-${VERSION}.tar.gz" /workspace
 cd "$base" || exit
 
 echo " ===> Copy required files into build environment"

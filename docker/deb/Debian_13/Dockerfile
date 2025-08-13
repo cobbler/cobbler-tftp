@@ -1,5 +1,5 @@
 # vim: ft=dockerfile
-FROM docker.io/library/debian:12
+FROM docker.io/library/debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 

@@ -8,13 +8,13 @@ on:
 jobs:
   lint_docs:
     name: rstcheck
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.9
+        python-version: 3.13
     - name: Install dependencies
       run:  pip install -U rstcheck doc8 sphinx
     - name: Run rstcheck
@@ -23,7 +23,7 @@ jobs:
       run: doc8 --ignore D001 docs
   python_black:
       name: black formatter
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
         - name: Check files using the black formatter
@@ -33,10 +33,10 @@ jobs:
             version: "22.3.0"
   pyright:
       name: pyright
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-latest
       strategy:
         matrix:
-          python-version: ["3.6", "3.9", "3.10"]
+          python-version: ["3.11", "3.12", "3.13"]
       steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -53,13 +53,13 @@ jobs:
           pyright $(git ls-files '*.py')
   isort:
     name: isort
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.6
+        python-version: 3.13
     - uses: isort/isort-action@master
       with:
         requirementsFiles: "pyproject.toml"

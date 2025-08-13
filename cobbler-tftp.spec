@@ -34,24 +34,21 @@ BuildRequires:  systemd-rpm-macros
 
 BuildRequires:  fdupes
 BuildRequires:  git
+BuildRequires:  %{python_module base >= 3.8}
 BuildRequires:  %{python_module pip}
 BuildRequires:  %{python_module setuptools}
-BuildRequires:  %{python_module setuptools_scm}
+BuildRequires:  %{python_module setuptools_scm >= 8.0.0}
 BuildRequires:  %{python_module wheel}
 BuildRequires:  %{python_module fbtftp}
 BuildRequires:  %{python_module python-daemon}
 BuildRequires:  %{python_module PyYAML}
 BuildRequires:  %{python_module click}
-BuildRequires:  %{python_module importlib-metadata}
-BuildRequires:  %{python_module importlib-resources}
 BuildRequires:  %{python_module schema}
 
 Requires:       python3-fbtftp
 Requires:       python3-python-daemon
 Requires:       python3-PyYAML
 Requires:       python3-click
-Requires:       python3-importlib-metadata
-Requires:       python3-importlib-resources
 Requires:       python3-schema
 BuildArch:      noarch
 
@@ -64,6 +61,7 @@ It seamlessly integrates with Cobbler to generate and serve boot configuration f
 
 %build
 cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{version}
+%python_exec -m setuptools_scm --force-write-version-files
 %pyproject_wheel
 
 %install
