@@ -1,7 +1,7 @@
 #
 # spec file for package cobbler-tftp
 #
-# Copyright (c) 2024 SUSE LLC
+# Copyright (c) 2025 SUSE LLC
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,8 +17,7 @@
 
 %define python_package_name cobbler_tftp
 
-%define pythons python3
-%{?sle15_python_module_pythons}
+%{?single_pythons_311plus}
 Name:           cobbler-tftp
 Version:        %{version}
 Release:        0
@@ -45,19 +44,20 @@ BuildRequires:  %{python_module PyYAML}
 BuildRequires:  %{python_module click}
 BuildRequires:  %{python_module schema}
 
-Requires:       python3-fbtftp
-Requires:       python3-python-daemon
-Requires:       python3-PyYAML
-Requires:       python3-click
-Requires:       python3-schema
+Requires:       python-fbtftp
+Requires:       python-python-daemon
+Requires:       python-PyYAML
+Requires:       python-click
+Requires:       python-schema
 BuildArch:      noarch
+%python_subpackages
 
 %description
 Cobbler-TFTP is a lightweight CLI application written in Python that serves as a stateless TFTP server.
 It seamlessly integrates with Cobbler to generate and serve boot configuration files dynamically to managed machines.
 
 %prep
-%autosetup
+%autosetup -p1
 
 %build
 cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{version}
@@ -81,7 +81,7 @@ cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{ver
 %postun
 %service_del_postun cobbler-tftp.service
 
-%files
+%files %{python_files}
 %license LICENSE
 %doc README.md
 %{_bindir}/cobbler-tftp
