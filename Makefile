@@ -1,4 +1,5 @@
 DOCKER_IMAGE_NAME=cobbler-tftp-pkg
+DOCKER_IMAGE_TAG_OCI=oci
 DOCKER_IMAGE_TAG_DEBIAN=debian-13
 DOCKER_IMAGE_TAG_OPENSUSE_TW=opensuse-tumbleweed
 
@@ -6,7 +7,8 @@ build:
 	@python3 -m setuptools_scm --force-write-version-files
 	@python3 -m pip wheel --verbose --use-pep517 --wheel-dir ./build .
 
-
+container-image:
+	@docker build -t localhost/${DOCKER_IMAGE_TAG_OCI} -f docker/production/Dockerfile .
 
 deb:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} -f docker/deb/Debian_13/Dockerfile .
@@ -24,4 +26,4 @@ clean:
 	@rm -rf src/*.egg-info src/*.dist-info
 	@rm -f src/cobbler_tftp/data/version.cfg
 
-.PHONY: rpm deb build clean
+.PHONY: rpm deb container-image build clean
