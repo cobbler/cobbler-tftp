@@ -1,6 +1,6 @@
 # vim: ft=dockerfile
 
-FROM opensuse/tumbleweed
+FROM registry.opensuse.org/opensuse/tumbleweed
 
 # Define labels according to https://en.opensuse.org/Building_derived_containers
 # labelprefix=org.opensuse.example

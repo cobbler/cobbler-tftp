@@ -6,7 +6,7 @@
 # We don't want to version pin our dependencies for testing. Always retrieve what is up to date.
 # hadolint global ignore=DL3037
 
-FROM opensuse/leap:16.0
+FROM registry.opensuse.org/opensuse/leap:16.0
 
 # Define labels according to https://en.opensuse.org/Building_derived_containers
 # labelprefix=org.opensuse.example
