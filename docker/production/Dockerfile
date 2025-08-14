@@ -26,8 +26,8 @@ RUN zypper ar https://download.opensuse.org/repositories/openSUSE:/Leap:/16.0/st
     && zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/16.0/ "Cobbler 3.4.x release project" \
     && zypper --gpg-auto-import-keys refresh
 
-# Dev Dependencies
-RUN zypper in -y cobbler-tftp \
+# Cobbler-TFTP and tftp client
+RUN zypper in -y cobbler-tftp tftp \
     && zypper clean
 
 EXPOSE 69/UDP
