@@ -19,7 +19,7 @@
 
 %{?single_pythons_311plus}
 Name:           cobbler-tftp
-Version:        %{version}
+Version:        0.1.0
 Release:        0
 Summary:        The TFTP server daemon for Cobbler
 License:        GPL-2.0-or-later
@@ -50,7 +50,6 @@ Requires:       python-PyYAML
 Requires:       python-click
 Requires:       python-schema
 BuildArch:      noarch
-%python_subpackages
 
 %description
 Cobbler-TFTP is a lightweight CLI application written in Python that serves as a stateless TFTP server.
@@ -81,7 +80,7 @@ cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{ver
 %postun
 %service_del_postun cobbler-tftp.service
 
-%files %{python_files}
+%files
 %license LICENSE
 %doc README.md
 %{_bindir}/cobbler-tftp
