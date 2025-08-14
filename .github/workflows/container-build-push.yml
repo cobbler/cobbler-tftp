@@ -4,8 +4,8 @@ name: Create and publish a Docker image
 
 on:
   push:
-    branches: ['main']
-    tags: ['v*']
+    branches: ["main"]
+    tags: ["v*"]
 
 env:
   REGISTRY: ghcr.io
@@ -20,8 +20,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Log in to the Container registry
+      - name: Log in to the openSUSE Container registry
         # https://github.com/docker/login-action
+        uses: docker/login-action@v3
+        with:
+          registry: https://registry.opensuse.org
+      - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
