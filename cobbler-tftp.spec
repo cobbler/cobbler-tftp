@@ -19,7 +19,7 @@
 
 %{?single_pythons_311plus}
 Name:           cobbler-tftp
-Version:        0.1.0
+Version:        %{version}
 Release:        0
 Summary:        The TFTP server daemon for Cobbler
 License:        GPL-2.0-or-later
