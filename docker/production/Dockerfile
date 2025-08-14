@@ -1,6 +1,6 @@
 # vim: ft=dockerfile
 # Define the names/tags of the container
-#!BuildTag: cobbler-test-github:release33 cobbler-test-github:release33.%RELEASE%
+#!BuildTag: cobbler-test-github:release34 cobbler-test-github:release34.%RELEASE%
 
 # We are using https://github.com/hadolint/hadolint to lint our Dockerfile.
 # We don't want to version pin our dependencies for testing. Always retrieve what is up to date.
