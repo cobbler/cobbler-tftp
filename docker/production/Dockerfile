@@ -6,7 +6,7 @@
 # We don't want to version pin our dependencies for testing. Always retrieve what is up to date.
 # hadolint global ignore=DL3037
 
-FROM opensuse/leap:15.6
+FROM opensuse/leap:16.0
 
 # Define labels according to https://en.opensuse.org/Building_derived_containers
 # labelprefix=org.opensuse.example
@@ -22,7 +22,7 @@ LABEL org.opencontainers.image.created="%BUILDTIME%"
 ENV container docker
 
 # Custom repository
-RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/15.6/ "Cobbler 3.4.x release project" \
+RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/16.0/ "Cobbler 3.4.x release project" \
     && zypper --gpg-auto-import-keys refresh
 
 # Dev Dependencies
