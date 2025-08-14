@@ -8,9 +8,10 @@ However, these methods of Installation will be available:
 Installation Requirements
 =========================
 
-To install and use Cobbler-TFTP, please make sure you have *at least Python 3.6* installed.
+To install and use Cobbler-TFTP, please make sure you have *at least Python 3.8* installed.
 
-### Install via `pip`
+Install via `pip`
+=================
 
 Cobbler-TFTP is published to PyPi.
 To install it, please make sure that your system fulfills the installation requirements listed above and has `pip`,
