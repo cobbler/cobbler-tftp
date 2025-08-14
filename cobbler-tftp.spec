@@ -44,11 +44,11 @@ BuildRequires:  %{python_module PyYAML}
 BuildRequires:  %{python_module click}
 BuildRequires:  %{python_module schema}
 
-Requires:       python-fbtftp
-Requires:       python-python-daemon
-Requires:       python-PyYAML
-Requires:       python-click
-Requires:       python-schema
+Requires:       python3-fbtftp
+Requires:       python3-python-daemon
+Requires:       python3-PyYAML
+Requires:       python3-click
+Requires:       python3-schema
 BuildArch:      noarch
 
 %description
