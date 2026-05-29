@@ -128,7 +128,14 @@ def __validate_module(name: ModuleType) -> bool:
     """
     # noqa for these lines because we can't use the custom types to check this.
     # pylint: disable=line-too-long
-    if sys.version_info[:2] >= (3, 13):
+    if sys.version_info[:2] >= (3, 14):
+        # Starting with Python 3.13 it appears that the real internal path is exposed
+        module_methods = {
+            "validate": "(settings_dict:Dict[str,float|bool|str|pathlib.Path|Dict[str,int|str|pathlib.Path]])->bool",  # noqa
+            "normalize": "(settings_dict:Dict[str,float|bool|str|pathlib.Path|Dict[str,int|str|pathlib.Path]])->Dict[str,float|bool|str|pathlib.Path|Dict[str,int|str|pathlib.Path]]",  # noqa
+            "migrate": "(settings_dict:Dict[str,float|bool|str|pathlib.Path|Dict[str,int|str|pathlib.Path]])->Dict[str,float|bool|str|pathlib.Path|Dict[str,int|str|pathlib.Path]]",  # noqa
+        }
+    elif sys.version_info[:2] == (3, 13):
         # Starting with Python 3.13 it appears that the real internal path is exposed
         module_methods = {
             "validate": "(settings_dict:Dict[str,Union[float,bool,str,pathlib._local.Path,Dict[str,Union[int,str,pathlib._local.Path]]]])->bool",  # noqa
