@@ -8,7 +8,7 @@ build:
 	@python3 -m pip wheel --verbose --use-pep517 --wheel-dir ./build .
 
 container-image:
-	@docker build -t localhost/${DOCKER_IMAGE_TAG_OCI} -f docker/production/Dockerfile .
+	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OCI} -f docker/production/Dockerfile .
 
 deb:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} -f docker/deb/Debian_13/Dockerfile .
