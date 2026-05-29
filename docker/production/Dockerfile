@@ -20,6 +20,7 @@ LABEL org.opencontainers.image.created="%BUILDTIME%"
 
 # ENV Variables we are using.
 ENV container=docker
+ENV COBBLER_TFTP__TFTP__PORT=6969
 
 # Custom repository
 RUN zypper ar https://download.opensuse.org/repositories/openSUSE:/Leap:/16.0/standard/openSUSE:Leap:16.0.repo \
@@ -30,5 +31,7 @@ RUN zypper ar https://download.opensuse.org/repositories/openSUSE:/Leap:/16.0/st
 RUN zypper in -y cobbler-tftp tftp \
     && zypper clean
 
-EXPOSE 69/UDP
+USER 1000
+
+EXPOSE 6969/udp
 CMD ["cobbler-tftp", "start", "--no-daemon"]
