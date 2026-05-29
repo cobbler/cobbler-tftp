@@ -1,5 +1,6 @@
 DOCKER_IMAGE_NAME=cobbler-tftp-pkg
 DOCKER_IMAGE_TAG_OCI=oci
+DOCKER_IMAGE_TAG_DEV=develop
 DOCKER_IMAGE_TAG_DEBIAN=debian-13
 DOCKER_IMAGE_TAG_OPENSUSE_TW=opensuse-tumbleweed
 
@@ -9,6 +10,10 @@ build:
 
 container-image:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OCI} -f docker/production/Dockerfile .
+
+container-image-dev:
+	@docker build -t localhost/${DOCKER_IMAGE_TAG_DEV} -f docker/develop/Dockerfile .
+	@docker run --read-only -v .:/code:Z --tmpfs /venv:rw,exec localhost/${DOCKER_IMAGE_TAG_DEV}:latest
 
 deb:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} -f docker/deb/Debian_13/Dockerfile .

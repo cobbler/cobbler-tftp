@@ -13,7 +13,8 @@ LABEL org.opencontainers.image.created="%BUILDTIME%"
 # endlabelprefix
 
 # ENV Variables we are using.
-ENV container docker
+ENV container=docker
+ENV COBBLER_TFTP__TFTP__PORT=6969
 
 # Custom repository
 RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/openSUSE_Tumbleweed/ "Cobbler 3.4.x release project" \
@@ -26,5 +27,6 @@ RUN zypper in -y git \
     && zypper clean
 
 WORKDIR /code
-EXPOSE 69/UDP
+EXPOSE 6969/udp
+USER 1000
 CMD ["/code/docker/develop/entrypoint.sh"]
