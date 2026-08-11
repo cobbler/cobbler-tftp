@@ -17,13 +17,13 @@ container-image-dev:
 
 deb:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} -f docker/deb/Debian_13/Dockerfile .
-	@docker run --rm -v $(CURDIR)/debs/Debian_13:/usr/src/cobbler-tftp/deb-build -v $(CURDIR):/workspace localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN}
-	@docker run --rm -v $(CURDIR):/workspace --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} bash -c 'dpkg -i /workspace/debs/Debian_13/cobbler-tftp*.deb'
+	@docker run --rm -v $(CURDIR)/debs/Debian_13:/usr/src/cobbler-tftp/deb-build:Z -v $(CURDIR):/workspace:Z localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN}
+	@docker run --rm -v $(CURDIR):/workspace:Z --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} bash -c 'dpkg -i /workspace/debs/Debian_13/cobbler-tftp*.deb'
 
 rpm:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW} -f docker/rpm/openSUSE_tumbleweed/Dockerfile .
-	@docker run --rm -v $(CURDIR)/rpms/openSUSE_tumbleweed:/root/rpmbuild/RPMS -v $(CURDIR):/workspace localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW}
-	@docker run --rm -v $(CURDIR):/workspace --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW} rpm -i /workspace/rpms/openSUSE_tumbleweed/noarch/*.rpm
+	@docker run --rm -v $(CURDIR)/rpms/openSUSE_tumbleweed:/root/rpmbuild/RPMS:Z -v $(CURDIR):/workspace:Z localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW}
+	@docker run --rm -v $(CURDIR):/workspace:Z --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW} rpm -i /workspace/rpms/openSUSE_tumbleweed/noarch/*.rpm
 
 clean:
 	@rm -rf debs rpms build .pybuild
