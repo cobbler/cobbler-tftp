@@ -14,6 +14,11 @@ echo " ===> Copy required files into build environment"
 rm -rf ~/rpmbuild/SOURCES/*
 cp "/cobbler-tftp-${VERSION}.tar.gz" ~/rpmbuild/SOURCES/
 cp cobbler-tftp.spec ~/rpmbuild/SPECS/
+# The spec's "Version: 0" is a placeholder OBS's set_version source service
+# rewrites at submission time; do the same rewrite here so Source0's
+# %{name}-%{version}.tar.gz matches the tarball actually built above
+# (rpmbuild's Version: tag would otherwise override --define version=...).
+sed -i "s/^Version:.*/Version:        ${VERSION}/" ~/rpmbuild/SPECS/cobbler-tftp.spec
 cd ~/rpmbuild/SOURCES || exit
 tar -xzvf "./cobbler-tftp-${VERSION}.tar.gz"
 cd "/workspace" || exit
