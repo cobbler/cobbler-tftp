@@ -13,7 +13,7 @@ FROM registry.suse.com/bci/bci-base:16.0
 LABEL org.opencontainers.image.title="cobbler-tftp"
 LABEL org.opencontainers.image.description="This image runs the (nearly) stateless Cobbler TFTP server."
 LABEL org.opencontainers.image.version="release34.%RELEASE%"
-LABEL org.opensuse.reference="registry.opensuse.org/systemsmanagement/cobbler/release34/cobbler-tftp:release34.%RELEASE%"
+LABEL org.opensuse.reference="registry.opensuse.org/systemsmanagement/cobbler/release40/cobbler-tftp:release34.%RELEASE%"
 LABEL org.openbuildservice.disturl="%DISTURL%"
 LABEL org.opencontainers.image.created="%BUILDTIME%"
 # endlabelprefix
@@ -24,7 +24,7 @@ ENV COBBLER_TFTP__TFTP__PORT=6969
 
 # Custom repository
 RUN zypper ar https://download.opensuse.org/repositories/openSUSE:/Leap:/16.0/standard/openSUSE:Leap:16.0.repo \
-    && zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/16.0/ "Cobbler 3.4.x release project" \
+    && zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release40/16.0/ "Cobbler 4.0.x release project" \
     && zypper --gpg-auto-import-keys refresh
 
 # Cobbler-TFTP and tftp client
