@@ -17,9 +17,20 @@
 
 %define python_package_name cobbler_tftp
 
+%if 0%{?fedora} || 0%{?rhel}
+%define python_daemon_name python3-daemon
+%else
+%define python_daemon_name python3-python-daemon
+%endif
+
+%if 0%{?suse_version}
 %{?single_pythons_311plus}
+%endif
+
+%global __python %{__python3}
+
 Name:           cobbler-tftp
-Version:        %{version}
+Version:        0
 Release:        0
 Summary:        The TFTP server daemon for Cobbler
 License:        GPL-2.0-or-later
@@ -30,26 +41,37 @@ Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  python-rpm-macros
 BuildRequires:  systemd-rpm-macros
 %endif
+%if 0%{?fedora} || 0%{?rhel}
+# Provides %%pyproject_wheel / %%pyproject_install, the Fedora/RHEL equivalent
+# of SUSE's python-rpm-macros pyproject buildsystem macros
+BuildRequires:  pyproject-rpm-macros
+%endif
 
 BuildRequires:  fdupes
 BuildRequires:  git
-BuildRequires:  %{python_module base >= 3.8}
-BuildRequires:  %{python_module pip}
-BuildRequires:  %{python_module setuptools}
-BuildRequires:  %{python_module setuptools_scm >= 8.0.0}
-BuildRequires:  %{python_module wheel}
-BuildRequires:  %{python_module fbtftp}
-BuildRequires:  %{python_module python-daemon}
-BuildRequires:  %{python_module PyYAML}
-BuildRequires:  %{python_module click}
-BuildRequires:  %{python_module schema}
+BuildRequires:  python3-devel >= 3.11
+BuildRequires:  python3-pip
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-setuptools_scm >= 8.0.0
+BuildRequires:  python3-wheel
+BuildRequires:  python3-fbtftp
+BuildRequires:  %{python_daemon_name}
+BuildRequires:  python3-PyYAML
+BuildRequires:  python3-click
+BuildRequires:  python3-schema
 
 Requires:       python3-fbtftp
-Requires:       python3-python-daemon
+Requires:       %{python_daemon_name}
 Requires:       python3-PyYAML
 Requires:       python3-click
 Requires:       python3-schema
 BuildArch:      noarch
+
+%if 0%{?fedora} || 0%{?rhel}
+# https://docs.fedoraproject.org/en-US/packaging-guidelines/Python/#Automatically-generated-dependencies
+# Disable it because it trips over python3-cheetah
+%{?python_disable_dependency_generator}
+%endif
 
 %description
 Cobbler-TFTP is a lightweight CLI application written in Python that serves as a stateless TFTP server.
@@ -60,13 +82,21 @@ It seamlessly integrates with Cobbler to generate and serve boot configuration f
 
 %build
 cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{version}
+%if 0%{?fedora} || 0%{?rhel}
+%{python3} -m setuptools_scm --force-write-version-files
+%else
 %python_exec -m setuptools_scm --force-write-version-files
+%endif
 %pyproject_wheel
 
 %install
 %pyproject_install
+%if 0%{?fedora} || 0%{?rhel}
+PYTHONPATH=%{buildroot}%{python3_sitelib} %{buildroot}%{_bindir}/cobbler-tftp setup --systemd-dir=%{_unitdir} --install-prefix=%{buildroot}
+%else
 %python_expand PYTHONPATH=%{buildroot}%{$python_sitelib} %{buildroot}%{_bindir}/cobbler-tftp setup --systemd-dir=%{_unitdir} --install-prefix=%{buildroot}
 %fdupes %{buildroot}%{_prefix}
+%endif
 
 %pre
 %service_add_pre cobbler-tftp.service

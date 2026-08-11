@@ -2,13 +2,13 @@
 Various utility functions for cobbler-tftp
 """
 
-from importlib.abc import Traversable
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 
 def copy_file(
-    src_dir: Traversable,  # type: ignore
+    src_dir: Traversable,
     dst_dir: Path,
     name: str,
     patch: Optional[List[Tuple[str, str]]] = None,
@@ -22,10 +22,10 @@ def copy_file(
     :param name: Name of the file (in both directories).
     :param patch: List of (old, new) strings to replace in the file.
     """
-    src = src_dir / name  # type: ignore
+    src = src_dir / name
     dst = dst_dir / name
-    contents: bytes = src.read_bytes()  # type: ignore
+    contents: bytes = src.read_bytes()
     if patch is not None:
         for old, new in patch:
-            contents = contents.replace(old.encode("UTF-8"), new.encode("UTF-8"))  # type: ignore
-    dst.write_bytes(contents)  # type: ignore
+            contents = contents.replace(old.encode("UTF-8"), new.encode("UTF-8"))
+    dst.write_bytes(contents)

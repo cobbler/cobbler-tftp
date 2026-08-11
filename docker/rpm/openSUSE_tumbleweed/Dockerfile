@@ -7,24 +7,25 @@ WORKDIR /workspace
 VOLUME /workspace
 
 # Install required dependencies
-RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/openSUSE_Tumbleweed/systemsmanagement:cobbler:release34.repo && \
+RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release40/openSUSE_Tumbleweed/systemsmanagement:cobbler:release40.repo && \
     zypper -n --gpg-auto-import-keys refresh && \
     zypper -n install \
     rpm-build \
     python-rpm-macros \
-    python313 \
-    python313-pip \
-    python313-setuptools \
-    python313-setuptools_scm \
-    python313-wheel \
-    python313-build \
-    python313-click \
-    python313-python-daemon \
-    python313-PyYAML \
-    python313-importlib-metadata \
-    python313-importlib-resources \
-    python313-schema \
-    python313-fbtftp \
+    python3 \
+    python3-devel \
+    python3-pip \
+    python3-setuptools \
+    python3-setuptools_scm \
+    python3-wheel \
+    python3-build \
+    python3-click \
+    python3-python-daemon \
+    python3-PyYAML \
+    python3-importlib-metadata \
+    python3-importlib-resources \
+    python3-schema \
+    python3-fbtftp \
     git \
     fdupes
 

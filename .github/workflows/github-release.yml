@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
           make deb
 
       - name: Upload DEB Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: cobbler-tftp-deb-${{ env.REPO_TAG }}
           path: ./debs/**/*.deb
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -63,7 +63,7 @@ jobs:
           make rpm
 
       - name: Upload RPM Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: cobbler-tftp-rpm-${{ env.REPO_TAG }}
           path: ./rpms/**/*.rpm
@@ -72,12 +72,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.x'
 
@@ -91,7 +91,7 @@ jobs:
           fi
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.x'
 
@@ -114,7 +114,7 @@ jobs:
           ls dist/
 
       - name: Upload WHL Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: cobbler-tftp-wheel-${{ env.REPO_TAG }}
           path: dist/*.whl
@@ -127,7 +127,7 @@ jobs:
       actions: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -143,11 +143,11 @@ jobs:
       # https://github.com/actions/download-artifact
       - name: Download all artifacts
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: ncipollo/release-action@v1.16.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           # Put release artifacts here.
           artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"

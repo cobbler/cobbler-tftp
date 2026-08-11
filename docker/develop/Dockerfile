@@ -17,7 +17,7 @@ ENV container=docker
 ENV COBBLER_TFTP__TFTP__PORT=6969
 
 # Custom repository
-RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release34/openSUSE_Tumbleweed/ "Cobbler 3.4.x release project" \
+RUN zypper ar https://download.opensuse.org/repositories/systemsmanagement:/cobbler:/release40/openSUSE_Tumbleweed/ "Cobbler 4.0.x release project" \
     && zypper --gpg-auto-import-keys refresh
 
 # Dependencies

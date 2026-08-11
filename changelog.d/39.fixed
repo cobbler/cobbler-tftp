@@ -1,0 +1,1 @@
+Replace the deprecated `importlib.abc.Traversable` alias, which is removed in Python 3.14, with `importlib.resources.abc.Traversable`

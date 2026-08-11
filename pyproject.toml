@@ -14,7 +14,8 @@ dynamic = [
   "version",
   "dependencies",
   "readme",
-  "optional-dependencies"
+  "optional-dependencies",
+  "requires-python"
 ]
 
 [project.scripts]
