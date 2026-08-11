@@ -36,8 +36,9 @@ def fake_settings_dict() -> SettingsDict:
 
 @pytest.fixture
 def settings_path() -> Path:
-    # pyright cannot work with our try-except import for older Python versions
-    with importlib_resources.path(  # type: ignore[reportUnkownMemberType]
-        "src.cobbler_tftp.settings.data", "settings.yml"
-    ) as settings_path:  # type: ignore[reportUnkownVariableType]
-        return settings_path  # type: ignore[reportUnkownVariableType]
+    with importlib_resources.as_file(
+        importlib_resources.files("src.cobbler_tftp.settings.data").joinpath(
+            "settings.yml"
+        )
+    ) as settings_path:
+        return settings_path

@@ -111,8 +111,10 @@ EMPTY_VERSION: CobblerTftpSchemaVersion = CobblerTftpSchemaVersion()
 VERSION_LIST: Dict[CobblerTftpSchemaVersion, ModuleType] = {}
 _CONFIG_FILE_PATH: Path = Path()
 
-with importlib_resources.path(__package__, "versioning.cfg") as config_path:  # type: ignore
-    _CONFIG_FILE_PATH = config_path  # type: ignore
+with importlib_resources.as_file(
+    importlib_resources.files(__name__).joinpath("versioning.cfg")
+) as config_path:
+    _CONFIG_FILE_PATH = config_path
 
 
 def __validate_module(name: ModuleType) -> bool:
@@ -201,13 +203,17 @@ def discover_migrations() -> None:
         * the module must contain the following methods: ``validate()``, ``normalize()``, ``migrate()``
         * those version must have a certain signature
     """
-    # importlib.resources.contents is deprecated with 3.11 but files().iterdir() is not yet available in 3.7
-    folder_iterator = importlib_resources.contents("cobbler_tftp.settings.migrations")  # type: ignore
+    folder_iterator = (
+        entry.name
+        for entry in importlib_resources.files(
+            "cobbler_tftp.settings.migrations"
+        ).iterdir()
+    )
     filename_regex = r"v[0-9]*_[0-9]*.py"
-    for files in folder_iterator:  # type: ignore
-        if not re.match(filename_regex, files):  # type: ignore
+    for files in folder_iterator:
+        if not re.match(filename_regex, files):
             continue
-        files = Path(files)  # type: ignore
+        files = Path(files)
         if files.is_symlink():
             continue
         migration_name = ""

@@ -56,11 +56,15 @@ def test_discover_migrations(mocker: "pytest_mock.MockerFixture"):
         "not_a_migration.py",
         "v4_0.py",
     ]
-    # Replace importlib_resources.contents with a mock object that returns the mock contents
-    mock_importlib = mocker.patch(
-        "cobbler_tftp.settings.migrations.importlib_resources.contents",
-        return_value=mock_migrations,
+    # Replace importlib_resources.files(...).iterdir() with a mock that yields
+    # fake directory entries exposing a `.name` attribute
+    mock_entries = [mocker.MagicMock() for _ in mock_migrations]
+    for entry, name in zip(mock_entries, mock_migrations):
+        entry.name = name
+    mock_files = mocker.patch(
+        "cobbler_tftp.settings.migrations.importlib_resources.files",
     )
+    mock_files.return_value.iterdir.return_value = mock_entries
     # Replace __load_migration_modules with a mock object that does nothing
     mock_load_migration = mocker.patch(
         "cobbler_tftp.settings.migrations.__load_migration_modules",
@@ -81,7 +85,7 @@ def test_discover_migrations(mocker: "pytest_mock.MockerFixture"):
         ]
     )
 
-    mock_importlib.assert_called_once_with("cobbler_tftp.settings.migrations")
+    mock_files.assert_called_once_with("cobbler_tftp.settings.migrations")
 
 
 def test_get_schema(mocker: "pytest_mock.MockerFixture"):
