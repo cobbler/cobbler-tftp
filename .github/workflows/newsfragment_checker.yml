@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -18,8 +21,24 @@ jobs:
           cache-dependency-path: setup.py
       - run: pip install -e .[doc]
 
+      - name: Check current "no changelog" label
+        id: no-changelog
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          REPO: "${{ github.repository }}"
+          PR_NUMBER: "${{ github.event.pull_request.number }}"
+        run: |
+          # github.event.pull_request.labels is a snapshot taken when this
+          # run was dispatched. A label added by another workflow (e.g. the
+          # Labeler's Dependabot job) after that moment would never show up
+          # here, so query the PR's current labels instead of relying on
+          # the (possibly stale) event payload.
+          has_label=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels \
+            --jq '[.labels[].name] | any(. == "no changelog")')
+          echo "has_label=${has_label}" >> "$GITHUB_OUTPUT"
+
       - name: get added newsfragments
-        if: ( ! contains(github.event.pull_request.labels.*.name, 'no changelog') )
+        if: steps.no-changelog.outputs.has_label != 'true'
         run: towncrier check --compare-with origin/main
 
       - name: Print result
