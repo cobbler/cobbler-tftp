@@ -20,3 +20,20 @@ jobs:
     - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  label-dependabot:
+    name: Label Dependabot PRs as "no changelog"
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+    - name: Add "no changelog" label
+      env:
+        GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        PR_NUMBER: "${{ github.event.pull_request.number }}"
+        REPO: "${{ github.repository }}"
+      run: |
+        gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "no changelog"

@@ -1,17 +1,23 @@
 python:
-- src/**/*.py
+- changed-files:
+  - any-glob-to-any-file: 'src/**/*.py'
 
 documentation:
-- docs/*
-- README.md
-- LICENSE
-- CODE_OF_CONDUCT.md
-- CONTRIBUTING
+- changed-files:
+  - any-glob-to-any-file:
+    - 'docs/*'
+    - 'README.md'
+    - 'LICENSE'
+    - 'CODE_OF_CONDUCT.md'
+    - 'CONTRIBUTING'
 
 configs:
-- ./**/*.toml
-- ./**/*.yml
-- ./**/*.cfg
+- changed-files:
+  - any-glob-to-any-file:
+    - './**/*.toml'
+    - './**/*.yml'
+    - './**/*.cfg'
 
 container:
-- Dockerfile
+- changed-files:
+  - any-glob-to-any-file: 'Dockerfile'
