@@ -4,10 +4,11 @@ This module contains the main TFTP server class.
 
 import logging
 import os
+import re
 import time
 import xmlrpc.client
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from fbtftp import (  # type: ignore[reportMissingTypeStubs]
     BaseHandler,
@@ -110,6 +111,35 @@ def server_stats_cb(stats: ServerStats):
     """
 
 
+#: Matches cobblerd's exact marshaled faultString for an invalid/expired auth token (see
+#: cobbler/remote.py's CobblerXMLRPCInterface.get_user_from_token, which raises
+#: CX(f"invalid token: {token}")). Anchored to the literal CX exception-type prefix and the
+#: "invalid token: " text immediately following it, rather than a bare substring search, so that a
+#: client-controlled TFTP request path (e.g. one containing the literal text "invalid token")
+#: cannot masquerade as a token-rejection fault via an unrelated error (such as FileNotFoundError,
+#: which embeds the requested path verbatim in its own, differently-prefixed faultString) and
+#: trigger a pointless forced re-login.
+_INVALID_TOKEN_FAULT_RE = re.compile(
+    r"^<class 'cobbler\.cexceptions\.CX'>:'?invalid token: "
+)
+
+
+def _is_invalid_token_fault(err: xmlrpc.client.Error) -> bool:
+    """
+    True if ``err`` indicates cobblerd rejected our cached auth token (e.g.
+    because cobblerd restarted and lost its in-memory token cache), as
+    opposed to an unrelated XML-RPC fault (such as "file not found") that
+    must not trigger a re-login/retry.
+
+    cobblerd always raises generic faults with faultCode 1 for this case
+    (see cobbler/remote.py CobblerXMLRPCInterface.get_user_from_token), so
+    faultString content is the only reliable signal available.
+    """
+    return isinstance(err, xmlrpc.client.Fault) and bool(
+        _INVALID_TOKEN_FAULT_RE.match(err.faultString)
+    )
+
+
 class CobblerRequestHandler(BaseHandler):
     """
     Handles TFTP requests using the Cobbler API.
@@ -124,6 +154,7 @@ class CobblerRequestHandler(BaseHandler):
         api: xmlrpc.client.Server,
         token: str,
         settings: Settings,
+        reauth: Callable[[], str],
     ):
         """
         Initialize a handler for a specific request.
@@ -135,10 +166,12 @@ class CobblerRequestHandler(BaseHandler):
         :param api: The Cobbler API object.
         :param token: Login token for accessing the Cobbler API.
         :param settings: The cobbler-tftp application settings.
+        :param reauth: Callback that forces an immediate re-login and returns the fresh token.
         """
         self._api = api
         self._token = token
         self._settings = settings
+        self._reauth = reauth
         super().__init__(server_addr, peer, path, options, handler_stats_cb)
 
     def get_response_data(self):
@@ -149,6 +182,21 @@ class CobblerRequestHandler(BaseHandler):
             resp.load()
             return resp
         except xmlrpc.client.Error as err:
+            if _is_invalid_token_fault(err):
+                logging.warning(  # type: ignore[reportUnkownArgumentType]
+                    "Token rejected by server while fetching %s (%r); forcing re-login and retrying once",
+                    self._path,
+                    err,
+                )
+                try:
+                    self._token = self._reauth()
+                    resp = CobblerResponseData(
+                        self._api, self._token, self._path, self._settings.prefetch_size  # type: ignore[reportUnkownArgumentType]
+                    )
+                    resp.load()
+                    return resp
+                except xmlrpc.client.Error as retry_err:
+                    err = retry_err
             logging.warning("Could not fetch %s from server: %r", self._path, err)  # type: ignore[reportUnkownArgumentType]
             if self._settings.static_fallback_dir is not None:
                 path = os.path.normpath(os.path.join("/", self._path)).strip("/")  # type: ignore[reportUnkownArgumentType]
@@ -178,9 +226,9 @@ class TFTPServer(BaseServer):
             server_stats_cb,
         )
 
-    def _renew_token(self, api: xmlrpc.client.Server):
+    def _renew_token(self, api: xmlrpc.client.Server, force: bool = False) -> None:
         start_time = time.monotonic()
-        if start_time >= self._token_renew_time:
+        if force or start_time >= self._token_renew_time:
             self._token = api.login(self._settings.user, self._settings.password)
             self._token_renew_time = start_time + self._settings.token_refresh_interval
 
@@ -200,6 +248,11 @@ class TFTPServer(BaseServer):
     ):
         api = xmlrpc.client.Server(self._settings.uri)
         self._renew_token(api)
+
+        def reauth() -> str:
+            self._renew_token(api, force=True)
+            return self._token  # type: ignore[reportReturnType]
+
         return CobblerRequestHandler(
-            server_addr, peer, path, options, api, self._token, self._settings  # type: ignore[reportArgumentType]
+            server_addr, peer, path, options, api, self._token, self._settings, reauth  # type: ignore[reportArgumentType]
         )
