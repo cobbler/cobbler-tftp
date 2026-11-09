@@ -152,7 +152,7 @@ class SettingsFactory:
         else:
             password_file = None
         token_refresh_interval: int = cobbler_settings.get("token_refresh_interval", 1800)  # type: ignore
-        prefetch_size: int = self._settings_dict.get("prefetch_size", 4096)  # type: ignore
+        prefetch_size: int = self._settings_dict.get("prefetch_size", 65536)  # type: ignore
         tftp_settings = self._settings_dict.get("tftp", {})
         tftp_addr: str = tftp_settings.get("address", "127.0.0.1")  # type: ignore
         tftp_port: int = tftp_settings.get("port", 69)  # type: ignore

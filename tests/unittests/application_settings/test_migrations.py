@@ -186,12 +186,12 @@ def test_auto_migrate_calls_migrate(
     settings_path: pathlib.Path,
 ):
     # Arrange
-    migrations.VERSION_LIST[
-        migrations.CobblerTftpSchemaVersion(1, 0)
-    ] = mocker.MagicMock()
-    migrations.VERSION_LIST[
-        migrations.CobblerTftpSchemaVersion(2, 0)
-    ] = mocker.MagicMock()
+    migrations.VERSION_LIST[migrations.CobblerTftpSchemaVersion(1, 0)] = (
+        mocker.MagicMock()
+    )
+    migrations.VERSION_LIST[migrations.CobblerTftpSchemaVersion(2, 0)] = (
+        mocker.MagicMock()
+    )
     mock_migrate = mocker.patch("cobbler_tftp.settings.migrations.migrate")
 
     # Act

@@ -30,6 +30,7 @@ def assert_default_settings(settings: Settings):
     assert settings.uri == "http://localhost/cobbler_api"
     assert settings.user == "cobbler"
     assert settings.password == "cobbler"
+    assert settings.prefetch_size == 65536
     assert settings.tftp_addr == "127.0.0.1"
     assert settings.tftp_port == 69
     assert settings.tftp_retries == 5
@@ -43,6 +44,10 @@ def assert_customized_settings(settings: Settings):
     assert settings.uri == "http://testmachine.testnetwork.com/api"
     assert settings.user == "cobbler"
     assert settings.password == "password"
+    # Not overridden in tests/test_data/valid_config.yml, so this exercises the
+    # hardcoded fallback default in SettingsFactory.build_settings() rather than
+    # the shipped settings.yml value.
+    assert settings.prefetch_size == 65536
     assert settings.tftp_addr == "0.0.0.0"  # nosec
     assert settings.tftp_port == 1969
     assert settings.tftp_retries == 10

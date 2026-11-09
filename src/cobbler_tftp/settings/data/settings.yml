@@ -13,10 +13,18 @@ cobbler:
   # Time before requesting a new token, in seconds. To avoid problems, set
   # this to a lower value than the token expiration time.
   token_refresh_interval: 1800
-# Chunk size used for fetching files from Cobbler.
-# Lower values result in slower transfers, higher values increase memory
-# consumption. Extremely large values may cause TFTP timeouts.
-prefetch_size: 4096
+# Chunk size (in bytes) used for fetching files from Cobbler over XML-RPC.
+# Each chunk costs one XML-RPC round-trip to cobblerd, so lower values mean
+# more round-trips and slower transfers of large files (kernels/initrds),
+# while higher values trade a bit of memory per in-flight TFTP session for
+# fewer round-trips. 65536 (64 KiB) comfortably covers the largest possible
+# TFTP "blksize" a client can negotiate (65464 bytes per RFC 2348) - a value
+# below the negotiated blksize causes the transfer to fail outright - while
+# keeping a single chunk fetch fast enough to stay well under the default
+# TFTP timeout below, even on a loaded cobblerd. Values far beyond this
+# showed no further throughput benefit in testing and increase the risk of
+# a single slow fetch exceeding the TFTP timeout under concurrent load.
+prefetch_size: 65536
 # TFTP server configuration
 tftp:
   address: "127.0.0.1"
