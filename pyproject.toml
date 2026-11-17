@@ -4,22 +4,53 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cobbler-tftp"
-dynamic = [
-  "authors",
-  "urls",
-  "description",
-  "keywords",
-  "license",
-  "classifiers",
-  "version",
-  "dependencies",
-  "readme",
-  "optional-dependencies",
-  "requires-python"
+description = "The tftp server daemon for Cobbler"
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [{name = "Team Cobbler", email = "cobbler.project@gmail.com"}]
+license = {text = "GPL-2.0-or-later"}
+keywords = ["cobbler", "tftp"]
+requires-python = ">=3.11"
+classifiers = [
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
+dynamic = ["version"]
+dependencies = [
+  "fbtftp>=0.5",
+  "python-daemon>=3.0.1",
+  "pyyaml>=6.0",
+  "click>=8.0.4",
+  "schema>=0.6.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/cobbler/cobbler-tftp"
 
 [project.scripts]
 cobbler-tftp = "cobbler_tftp.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest>=7.0.1", "pytest-mock>=3.6.1", "pytest-cov>=4.1.0"]
+lint = ["pre-commit>=2.0.1", "black>=25.1.0", "pyright>=0.0.13", "isort>=5.8.0", "prospector>=1.7.7"]
+doc = ["Sphinx>=5.3.0", "sphinx-rtd-theme>=1.2.0", "towncrier>=22.12.0"]
+dev_requires = ["pip>=21.3.1"]
+optional_setup = ["vcs-versioning>=1.0.0.dev0"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
 
 [tool.isort]
 profile = "black"

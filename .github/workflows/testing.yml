@@ -22,7 +22,7 @@ jobs:
         python-version: 3.x
 
     - name: Install dependencies
-      run: pip install .[tests_require]
+      run: pip install .[test]
 
     - name: Run tests
       run: pytest -v --cov=src/ tests/
@@ -53,7 +53,7 @@ jobs:
         allow-prereleases: true
 
     - name: Install dependencies
-      run: pip install .[tests_require]
+      run: pip install .[test]
 
     - name: Run tests
       run: pytest -v tests/

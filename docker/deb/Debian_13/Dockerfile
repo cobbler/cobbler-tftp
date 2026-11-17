@@ -18,6 +18,7 @@ RUN apt-get update -qq && \
     python3-setuptools  \
     python3-pip  \
     python3-setuptools-scm  \
+    pybuild-plugin-pyproject  \
     python3-pytest  \
     python3-schema  \
     python3-daemon  \

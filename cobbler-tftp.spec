@@ -82,11 +82,6 @@ It seamlessly integrates with Cobbler to generate and serve boot configuration f
 
 %build
 cp -r %{_sourcedir}/cobbler-tftp-%{version}/.git %{_builddir}/cobbler-tftp-%{version}
-%if 0%{?fedora} || 0%{?rhel}
-%{python3} -m setuptools_scm --force-write-version-files
-%else
-%python_exec -m setuptools_scm --force-write-version-files
-%endif
 %pyproject_wheel
 
 %install
@@ -98,6 +93,7 @@ PYTHONPATH=%{buildroot}%{python3_sitelib} %{buildroot}%{_bindir}/cobbler-tftp se
 %fdupes %{buildroot}%{_prefix}
 %endif
 
+%if 0%{?suse_version}
 %pre
 %service_add_pre cobbler-tftp.service
 
@@ -109,6 +105,16 @@ PYTHONPATH=%{buildroot}%{python3_sitelib} %{buildroot}%{_bindir}/cobbler-tftp se
 
 %postun
 %service_del_postun cobbler-tftp.service
+%else
+%post
+%systemd_post cobbler-tftp.service
+
+%preun
+%systemd_preun cobbler-tftp.service
+
+%postun
+%systemd_postun_with_restart cobbler-tftp.service
+%endif
 
 %files
 %license LICENSE
