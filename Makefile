@@ -23,7 +23,7 @@ deb:
 	@docker run --rm -v $(CURDIR)/debs/Debian_13:/usr/src/cobbler-tftp/deb-build:Z -v $(CURDIR):/workspace:Z localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN}
 	@docker run --rm -v $(CURDIR):/workspace:Z --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_DEBIAN} bash -c 'dpkg -i /workspace/debs/Debian_13/cobbler-tftp*.deb'
 
-rpm:
+rpm-tumbleweed:
 	@docker build -t localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW} -f docker/rpm/openSUSE_tumbleweed/Dockerfile .
 	@docker run --rm -v $(CURDIR)/rpms/openSUSE_tumbleweed:/root/rpmbuild/RPMS:Z -v $(CURDIR):/workspace:Z localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW}
 	@docker run --rm -v $(CURDIR):/workspace:Z --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_OPENSUSE_TW} rpm -i /workspace/rpms/openSUSE_tumbleweed/noarch/*.rpm
@@ -43,10 +43,12 @@ rpm-fedora43:
 	@docker run --rm -v $(CURDIR)/rpms/Fedora43:/root/rpmbuild/RPMS:Z -v $(CURDIR):/workspace:Z localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_FEDORA43}
 	@docker run --rm -v $(CURDIR):/workspace:Z --entrypoint '' localhost/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG_FEDORA43} rpm -i /workspace/rpms/Fedora43/noarch/*.rpm
 
+rpms: rpm-leap16 rpm-tumbleweed rpm-rocky10 rpm-fedora43
+
 clean:
 	@rm -rf debs rpms build .pybuild
 	@rm -rf debian/cobbler-tftp debian/.debhelper debian/*.debhelper.log debian/*.debhelper debian/*.substvars debian/debhelper-build-stamp debian/files
 	@rm -rf src/*.egg-info src/*.dist-info
 	@rm -f src/cobbler_tftp/data/version.cfg
 
-.PHONY: rpm rpm-leap16 rpm-rocky10 rpm-fedora43 deb container-image build clean
+.PHONY: rpms rpm-leap16 rpm-tumbleweed rpm-rocky10 rpm-fedora43 deb container-image build clean
