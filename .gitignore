@@ -148,3 +148,6 @@ debian/files
 
 # Version file
 src/cobbler_tftp/data/version.cfg
+
+# Node (commitlint tooling)
+node_modules/
