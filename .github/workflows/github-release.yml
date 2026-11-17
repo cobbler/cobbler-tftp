@@ -39,8 +39,8 @@ jobs:
         with:
           name: cobbler-tftp-deb-${{ env.REPO_TAG }}
           path: ./debs/**/*.deb
-  build-rpms:
-    name: Build RPMs
+  build-rpms-rockylinux10:
+    name: Build RPMs (Rocky Linux 10)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -57,15 +57,91 @@ jobs:
             echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
           fi
 
-      - name: Build RPM in openSUSE Container
-        run: |
-          # Run the RPM build inside an openSUSE Tumbleweed container
-          make rpm
+      - name: Build RPM
+        run: make rpm-rocky10
 
       - name: Upload RPM Artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: cobbler-tftp-rpm-${{ env.REPO_TAG }}
+          name: cobbler-tftp-rpm-rockylinux10-${{ env.REPO_TAG }}
+          path: ./rpms/**/*.rpm
+  build-rpms-fedora43:
+    name: Build RPMs (Fedora 43)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build RPM
+        run: make rpm-fedora43
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cobbler-tftp-rpm-fedora43-${{ env.REPO_TAG }}
+          path: ./rpms/**/*.rpm
+  build-rpms-opensuse-leap16:
+    name: Build RPMs (openSUSE Leap 16.0)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build RPM
+        run: make rpm-leap16
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cobbler-tftp-rpm-opensuse-leap16-${{ env.REPO_TAG }}
+          path: ./rpms/**/*.rpm
+  build-rpms-opensuse-tumbleweed:
+    name: Build RPMs (openSUSE Tumbleweed)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag or Commit
+        # If run on a tag, artifacts are build with the latest version tag. Otherwise, the last commit SHA is used.
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "REPO_TAG=$(echo "${{ github.ref_name }}" | sed 's/^v//')" >> $GITHUB_ENV
+          else
+            echo "REPO_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build RPM
+        run: make rpm-tumbleweed
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cobbler-tftp-rpm-opensuse-tumbleweed-${{ env.REPO_TAG }}
           path: ./rpms/**/*.rpm
   build-wheel:
     name: Build Python Wheel
@@ -121,7 +197,15 @@ jobs:
   create-github-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-debs, build-rpms, build-wheel]
+    needs:
+      [
+        build-debs,
+        build-rpms-rockylinux10,
+        build-rpms-fedora43,
+        build-rpms-opensuse-leap16,
+        build-rpms-opensuse-tumbleweed,
+        build-wheel,
+      ]
     permissions:
       contents: write
       actions: write
@@ -150,6 +234,6 @@ jobs:
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           # Put release artifacts here.
-          artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"
+          artifacts: "cobbler-tftp-wheel-${{ env.REPO_TAG }}, cobbler-tftp-rpm-rockylinux10-${{ env.REPO_TAG }}, cobbler-tftp-rpm-fedora43-${{ env.REPO_TAG }}, cobbler-tftp-rpm-opensuse-leap16-${{ env.REPO_TAG }}, cobbler-tftp-rpm-opensuse-tumbleweed-${{ env.REPO_TAG }}, cobbler-tftp-deb-${{ env.REPO_TAG }}"
           tag: ${{ github.ref_name }}
           generateReleaseNotes: true
